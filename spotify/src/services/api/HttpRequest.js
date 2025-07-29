@@ -1,6 +1,8 @@
+import { API_BASE_URL } from "../../utils/constants.js";
+
 class HttpRequest {
   constructor() {
-    this.baseUrl = "https://spotify.f8team.dev/api";
+    this.baseUrl = API_BASE_URL;
   }
 
   async _fetchApi(path, method = "GET", body) {
