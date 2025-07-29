@@ -5,7 +5,7 @@ class HttpRequest {
     this.baseUrl = API_BASE_URL;
   }
 
-  async _fetchApi(path, method = "GET", body) {
+  async _fetchApi(path, method = "GET", body, retryCount = 3) {
     const options = {
       method,
       headers: {
@@ -21,7 +21,7 @@ class HttpRequest {
     const res = await fetch(api, options);
 
     if (!res.ok) {
-      throw new Error("Lấy dữ liệu thất bại");
+      throw new Error(`Lấy dữ liệu thất bại: ${res.status}`);
     }
 
     const data = await res.json();

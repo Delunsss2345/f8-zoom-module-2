@@ -115,35 +115,35 @@
       <!-- Bottom Player -->
       <footer class="player">
         <div class="player-left">
-          <img
+          <!-- <img
             src="placeholder.svg?height=56&width=56"
             alt="Current track"
             class="player-image"
-          />
+          /> -->
           <div class="player-info">
-            <div class="player-title">Yêu Một Người Sao Buồn Đến Thế</div>
-            <div class="player-artist">Noo Phước Thịnh</div>
+            <div class="player-title"></div>
+            <div class="player-artist"></div>
           </div>
-          <button class="add-btn">
+          <!-- <button class="add-btn">
             <i class="fa-solid fa-plus"></i>
-          </button>
+          </button> -->
         </div>
 
         <div class="player-center">
           <div class="player-controls">
-            <button class="control-btn active">
+            <button class="control-btn random-btn">
               <i class="fas fa-random"></i>
             </button>
-            <button class="control-btn">
+            <button class="control-btn prev-btn">
               <i class="fas fa-step-backward"></i>
             </button>
             <button class="control-btn play-btn">
-              <i class="fas fa-pause"></i>
+              <i class="fas fa-play"></i>
             </button>
-            <button class="control-btn">
+            <button class="control-btn next-btn">
               <i class="fas fa-step-forward"></i>
             </button>
-            <button class="control-btn">
+            <button class="control-btn return-btn">
               <i class="fas fa-redo"></i>
             </button>
           </div>
@@ -271,6 +271,7 @@
         </div>
       </div>
     </div>
+    <audio id="audioPlay"></audio>
 
     <script src="src/app.js" type="module"></script>
   </body>

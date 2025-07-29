@@ -6,20 +6,28 @@ import LibraryItem from "../components/library/LibraryItem.js";
 import ArtistService from "../services/api/ArtistService.js";
 
 class HomePage {
-
   constructor() {
     this.libraryContent = document.querySelector(".library-content");
     this.artistHero = document.querySelector(".artist-hero");
     this.trackList = document.querySelector(".track-list");
+    this.player = document.querySelector(".player");
+    this.audio = document.getElementById("audioPlay");
+    this.process = document.querySelector(".progress-fill");
 
     this.authModal = new AuthModal();
     this.userDropdown = new UserDropdown();
 
     this.artistHeroComponent = new ArtistHero(this.artistHero);
-    this.trackListComponent = new TrackList(this.trackList);
-    this.libraryItemComponent = new LibraryItem((id) =>
-      this.handleArtistSelect(id)
+    this.trackListComponent = new TrackList(
+      this.trackList,
+      this.audio,
+      this.process,
+      this.player
     );
+    this.libraryItemComponent = new LibraryItem((id) => {
+      this.artistId = id;
+      this.handleArtistSelect(id);
+    });
 
     this.init();
   }
@@ -47,7 +55,7 @@ class HomePage {
       const { artist, tracks } = await ArtistService.getArtistDetails(id);
 
       this.artistHeroComponent.render(artist);
-      this.trackListComponent.render(tracks);
+      this.trackListComponent.init(tracks, artist.name);
     } catch (error) {
       console.error("Lỗi lấy artist details", error);
     }
@@ -78,6 +86,7 @@ class HomePage {
       this.libraryContent.appendChild(libraryItem);
 
       if (isFirst) {
+        this.artistId = artist.id;
         this.handleArtistSelect(artist.id);
       }
     });
