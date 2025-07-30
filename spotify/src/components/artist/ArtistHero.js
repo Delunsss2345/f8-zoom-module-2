@@ -1,15 +1,24 @@
 import { formatNumber } from "../../utils/formatters.js";
 import { createElement } from "../../utils/helpers.js";
+import TrackList from "./TrackList.js";
 
 class ArtistHero {
-  constructor(container) {
+  constructor(container, tracks) {
+    this.player = document.querySelector(".player");
+    this.audio = document.getElementById("audioPlay");
+    this.process = document.querySelector(".progress-fill");
     this.container = container;
   }
-  createHeroSection(imageUrl, artistName, monthlyListeners) {
+  createArtistPage(imageUrl, artistName, monthlyListeners) {
+    const contentWrapper = createElement("div", {
+      className: "content-wrapper",
+    });
+
+    const artistHero = createElement("section", { className: "artist-hero" });
+
     const heroBackground = createElement("div", {
       className: "hero-background",
     });
-
     const img = createElement("img", {
       className: "hero-image",
       attributes: {
@@ -17,7 +26,6 @@ class ArtistHero {
         alt: `${artistName} artist background`,
       },
     });
-
     const overlay = createElement("div", { className: "hero-overlay" });
 
     heroBackground.appendChild(img);
@@ -44,20 +52,52 @@ class ArtistHero {
     heroContent.appendChild(name);
     heroContent.appendChild(listeners);
 
-    const wrapper = createElement("div");
-    wrapper.appendChild(heroBackground);
-    wrapper.appendChild(heroContent);
+    artistHero.appendChild(heroBackground);
+    artistHero.appendChild(heroContent);
 
-    return wrapper;
+    const artistControls = createElement("section", {
+      className: "artist-controls",
+    });
+    const playBtn = createElement("button", { className: "play-btn-large" });
+    const playIcon = createElement("i", { className: "fas fa-play" });
+    playBtn.appendChild(playIcon);
+    artistControls.appendChild(playBtn);
+
+    const popularSection = createElement("section", {
+      className: "popular-section",
+    });
+    const popularTitle = createElement("h2", {
+      className: "section-title",
+      textContent: "Popular",
+    });
+    const trackList = createElement("div", { className: "track-list" });
+
+    popularSection.appendChild(popularTitle);
+    popularSection.appendChild(trackList);
+
+    contentWrapper.appendChild(artistHero);
+    contentWrapper.appendChild(artistControls);
+    contentWrapper.appendChild(popularSection);
+
+    return contentWrapper;
   }
 
-  render(artistData) {
+  render(artistData, tracks) {
     const { background_image_url, name, monthly_listeners } = artistData;
 
     this.container.innerHTML = "";
     this.container.appendChild(
-      this.createHeroSection(background_image_url, name, monthly_listeners)
+      this.createArtistPage(background_image_url, name, monthly_listeners)
     );
+    this.trackList = document.querySelector(".track-list");
+    this.trackListComponent = new TrackList(
+      this.trackList,
+      this.audio,
+      this.process,
+      this.player
+    );
+
+    this.trackListComponent.init(tracks, artistData.name);
   }
 }
 

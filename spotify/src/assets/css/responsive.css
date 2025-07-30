@@ -25,7 +25,7 @@
 /* Tablet */
 @media (max-width: 1023px) and (min-width: 768px) {
   .app-container {
-    grid-template-columns: 240px 1fr;
+    grid-template-columns: 250px 1fr;
   }
 
   .sidebar {
@@ -244,10 +244,29 @@
   .pip-btn {
     display: none;
   }
+  .content-img {
+    width: 120px;
+  }
+  .content-img {
+    height: 124px;
+  }
+
+  .content-title {
+    font-size: 14px;
+  }
+
+  .content-subtitle {
+    font-size: 13px;
+  }
 }
 
 /* Small Mobile */
 @media (max-width: 480px) {
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
   .artist-name {
     font-size: 28px;
   }

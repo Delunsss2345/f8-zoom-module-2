@@ -1,29 +1,27 @@
 import ArtistHero from "../components/artist/ArtistHero.js";
-import TrackList from "../components/artist/TrackList.js";
 import AuthModal from "../components/auth/AuthModal.js";
 import UserDropdown from "../components/auth/UserDropdown.js";
+import ContextMenu from "../components/contextMenu/contextMenu.js";
+import Home from "../components/home/Home.js";
 import LibraryItem from "../components/library/LibraryItem.js";
+import SortDropdown from "../components/library/SortDropdown.js";
 import ArtistService from "../services/api/ArtistService.js";
+import TrackService from "../services/api/TrackService.js";
+import { MODAL_CLASSES } from "../utils/constants.js";
 
 class HomePage {
   constructor() {
+    this.library = [];
     this.libraryContent = document.querySelector(".library-content");
-    this.artistHero = document.querySelector(".artist-hero");
-    this.trackList = document.querySelector(".track-list");
-    this.player = document.querySelector(".player");
-    this.audio = document.getElementById("audioPlay");
-    this.process = document.querySelector(".progress-fill");
-
+    this.contentWrapper = document.querySelector(".content-wrapper");
     this.authModal = new AuthModal();
     this.userDropdown = new UserDropdown();
+    this.sortDropdown = new SortDropdown();
 
-    this.artistHeroComponent = new ArtistHero(this.artistHero);
-    this.trackListComponent = new TrackList(
-      this.trackList,
-      this.audio,
-      this.process,
-      this.player
-    );
+    this.contextMenuComponent = new ContextMenu();
+    this.contentComponent = new ArtistHero(this.contentWrapper);
+    this.HomeComponent = new Home(this.contentWrapper);
+
     this.libraryItemComponent = new LibraryItem((id) => {
       this.artistId = id;
       this.handleArtistSelect(id);
@@ -33,13 +31,17 @@ class HomePage {
   }
 
   async init() {
-    this.setUpEvent();
     await this.loadArtists();
+    await this.loadPopularTracks();
+    this.setUpEvent();
   }
 
   setUpEvent() {
     const signupBtn = document.querySelector(".signup-btn");
     const loginBtn = document.querySelector(".login-btn");
+    const searchBtn = document.querySelector(".search-library-btn");
+    const inputSearch = document.querySelector(".search-library-input");
+    const homeBtn = document.querySelector(".home-btn");
 
     signupBtn.addEventListener("click", () => {
       this.authModal.openWithSignup();
@@ -48,14 +50,61 @@ class HomePage {
     loginBtn.addEventListener("click", () => {
       this.authModal.openWithLogin();
     });
+
+    homeBtn.addEventListener("click", () => {
+      this.contentWrapper.innerHTML = "";
+      this.HomeComponent.render(this.library);
+      this.HomeComponent.render(
+        this.popularTracks,
+        "Nhạc phổ biến hiện nay",
+        "album"
+      );
+    });
+
+    let debounceTimer;
+
+    inputSearch.addEventListener("input", (e) => {
+      clearTimeout(debounceTimer);
+
+      debounceTimer = setTimeout(() => {
+        console.log(e.target.value);
+        this.renderLibrary(this.library, undefined, e.target.value);
+      }, 800);
+    });
+
+    searchBtn.addEventListener("click", () => {
+      inputSearch.style.visibility = "visible";
+      inputSearch.style.opacity = "1";
+      const textSort = document.querySelector(".text-sort");
+      textSort.innerHTML = "";
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".search-library")) {
+        inputSearch.style.visibility = "hidden";
+        inputSearch.style.opacity = "0";
+        inputSearch.value = "";
+
+        const textSort = document.querySelector(".text-sort");
+        textSort.innerHTML = this.sortDropdown.getCurrentSort;
+      }
+      this.contextMenuComponent.getMenu.classList.remove(MODAL_CLASSES.SHOW);
+    });
+
+    document.addEventListener("sortChanged", (e) => {
+      this.handleSortChange(e.detail);
+    });
+
+    document.addEventListener("viewChanged", (e) => {
+      this.handleViewChange(e.detail);
+      this.detail = e.detail;
+    });
   }
 
   async handleArtistSelect(id) {
     try {
       const { artist, tracks } = await ArtistService.getArtistDetails(id);
-
-      this.artistHeroComponent.render(artist);
-      this.trackListComponent.init(tracks, artist.name);
+      this.contentComponent.render(artist, tracks);
     } catch (error) {
       console.error("Lỗi lấy artist details", error);
     }
@@ -66,29 +115,111 @@ class HomePage {
       const response = await ArtistService.getArtists();
 
       if (response.success) {
-        this.renderLibrary(response.data.artists);
+        const data = response.data.artists;
+        this.library = data;
+        this.renderLibrary(data);
+        this.HomeComponent.render(data);
       }
     } catch (error) {
       console.error("Lỗi lấy artists", error);
     }
   }
 
-  renderLibrary(artists) {
+  async loadPopularTracks() {
+    try {
+      const response = await TrackService.getPopularTracks();
+
+      if (response.success) {
+        const data = response.data.tracks;
+        this.popularTracks = data;
+        this.HomeComponent.render(data, "Nhạc phổ biến hiện nay", "album");
+      }
+    } catch (error) {
+      console.error("Lỗi lấy artists", error);
+    }
+  }
+
+  sortArtists(artists, sortBy) {
+    if (!sortBy || !sortBy.sortBy) return artists;
+
+    const sorted = [...artists];
+
+    switch (sortBy.sortBy) {
+      case "name":
+      case "alphabetical":
+        sorted.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+
+      case "creator":
+        sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        break;
+
+      case "recent":
+        sorted.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+        break;
+
+      default:
+        break;
+    }
+
+    return sorted;
+  }
+
+  filterArtists(artists, value) {
+    if (!value) return;
+    let sorted = [...artists];
+    sorted = sorted.filter((sort) =>
+      sort.name.toLowerCase().includes(value.toLowerCase())
+    );
+
+    return sorted;
+  }
+
+  renderLibrary(artists, sortBy, value) {
+    if (sortBy) {
+      console.log(sortBy);
+      artists = this.sortArtists(artists, sortBy);
+    }
+
+    if (value) {
+      artists = this.filterArtists(artists, value);
+    }
+
+    this.libraryContent.innerHTML = "";
     artists.forEach((artist, idx) => {
-      const isFirst = idx === 0; // là cái đầu tiên hiện ra thì active
       const libraryItem = this.libraryItemComponent.createLibraryItem(
         artist.id,
         artist.name,
-        artist.image_url,
-        isFirst
+        artist.image_url
       );
 
       this.libraryContent.appendChild(libraryItem);
+    });
 
-      if (isFirst) {
-        this.artistId = artist.id;
-        this.handleArtistSelect(artist.id);
-      }
+    if (this.detail) {
+      this.handleViewChange(this.detail);
+    }
+  }
+
+  handleSortChange(detail) {
+    this.renderLibrary(this.library, detail);
+  }
+
+  handleViewChange(detail) {
+    const libraryItems = document.querySelectorAll(".library-item");
+
+    libraryItems.forEach((item) => {
+      item.classList.remove(
+        "list-view",
+        "compact-view",
+        "grid-view",
+        "grid-large-view"
+      );
+    });
+
+    const viewClass = `${detail.viewType.replace("-", "-")}-view`;
+    libraryItems.forEach((item) => {
+      item.classList.add(viewClass);
     });
   }
 }
