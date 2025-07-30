@@ -5,27 +5,40 @@ class HttpRequest {
     this.baseUrl = API_BASE_URL;
   }
 
-  async _fetchApi(path, method = "GET", body, retryCount = 3) {
-    const options = {
-      method,
-      headers: {
+  async _fetchApi(path, method = "GET", body, accessToken = null) {
+    try {
+      const headers = {
         "Content-Type": "application/json",
-      },
-    };
+      };
 
-    if (body) {
-      options.body = JSON.stringify(body);
+      if (accessToken) {
+        headers["Authorization"] = `Bearer ${accessToken}`;
+      }
+
+      const options = {
+        method,
+        headers,
+      };
+
+      if (body) {
+        options.body = JSON.stringify(body);
+      }
+
+      const api = `${this.baseUrl}${path}`;
+
+      const res = await fetch(api, options);
+
+      if (!res.ok) {
+        const errorBody = await res.json();
+        return {
+          success: false,
+          errorBody,
+        };
+      }
+      return await res.json();
+    } catch (error) {
+      throw error;
     }
-
-    const api = `${this.baseUrl}${path}`;
-    const res = await fetch(api, options);
-
-    if (!res.ok) {
-      throw new Error(`Lấy dữ liệu thất bại: ${res.status}`);
-    }
-
-    const data = await res.json();
-    return data;
   }
 
   async get(path) {
@@ -38,9 +51,13 @@ class HttpRequest {
     }
   }
 
-  async post(path, body) {
+  async post(path, body, accessToken = null) {
     try {
-      const data = await this._fetchApi(path, "POST", body);
+      const data = await this._fetchApi(path, "POST", body, accessToken);
+      if (!data.success) {
+        return data;
+      }
+
       return { success: true, data };
     } catch (err) {
       console.error(err.message);

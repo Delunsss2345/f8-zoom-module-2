@@ -1,8 +1,11 @@
+import AuthService from "../../services/api/AuthService.js";
 import { KEYS, MODAL_CLASSES } from "../../utils/constants.js";
 import { toggleBodyScroll } from "../../utils/helpers.js";
 
 class AuthModal {
   constructor() {
+    this.submitSignUp = document.querySelector(".auth-submit-btn.signup-btn");
+    this.submitLogin = document.querySelector(".auth-submit-btn.login-btn");
     this.authModal = document.getElementById("authModal");
     this.modalClose = document.getElementById("modalClose");
     this.signupForm = document.getElementById("signupForm");
@@ -11,6 +14,20 @@ class AuthModal {
     this.showSignupBtn = document.getElementById("showSignup");
     this.modalContainer = document.querySelector(".modal-container");
     this.overLay = document.querySelector(".modal-overlay");
+
+    this.userNameSignUpField = document.getElementById("signupUsername");
+    this.emailSignUpField = document.getElementById("signupEmail");
+    this.passwordSignUpField = document.getElementById("signupPassword");
+
+    this.emailLoginField = document.getElementById("loginEmail");
+    this.passwordLoginField = document.getElementById("loginPassword");
+    this.authService = new AuthService(
+      this.userNameSignUpField,
+      this.emailSignUpField,
+      this.passwordSignUpField,
+      this.emailLoginField,
+      this.passwordLoginField
+    );
     this.init();
   }
 
@@ -40,6 +57,32 @@ class AuthModal {
   }
 
   setUpEvent() {
+    this.signupForm.querySelector(".auth-form-content").onsubmit = (e) => {
+      e.preventDefault();
+    };
+    this.loginForm.querySelector(".auth-form-content").onsubmit = (e) => {
+      e.preventDefault();
+    };
+
+    this.submitSignUp.onclick = async (e) => {
+      e.preventDefault();
+      const data = {
+        username: this.userNameSignUpField.value.trim(),
+        email: this.emailSignUpField.value.trim(),
+        password: this.passwordSignUpField.value.trim(),
+      };
+      await this.authService.registerUser(data);
+    };
+
+    this.submitLogin.onclick = async (e) => {
+      e.preventDefault();
+      const data = {
+        email: this.emailLoginField.value.trim(),
+        password: this.emailLoginField.value.trim(),
+      };
+      await this.authService.loginUser(data);
+    };
+
     this.modalClose.addEventListener("click", () => this.closeModal());
     this.authModal.addEventListener("click", (e) => {
       if (e.target === this.authModal) {
