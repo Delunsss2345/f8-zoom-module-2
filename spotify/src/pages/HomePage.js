@@ -1,6 +1,6 @@
 import ArtistHero from "../components/artist/ArtistHero.js";
+import AuthButton from "../components/auth/AuthButton.js";
 import AuthModal from "../components/auth/AuthModal.js";
-import UserDropdown from "../components/auth/UserDropdown.js";
 import ContextMenu from "../components/contextMenu/contextMenu.js";
 import Home from "../components/home/Home.js";
 import LibraryItem from "../components/library/LibraryItem.js";
@@ -14,18 +14,21 @@ class HomePage {
     this.library = [];
     this.libraryContent = document.querySelector(".library-content");
     this.contentWrapper = document.querySelector(".content-wrapper");
-    this.authModal = new AuthModal();
-    this.userDropdown = new UserDropdown();
+    this.headerAction = document.querySelector(".header-actions");
+    this.authBtn = document.querySelector(".auth-buttons");
     this.sortDropdown = new SortDropdown();
-
     this.contextMenuComponent = new ContextMenu();
     this.contentComponent = new ArtistHero(this.contentWrapper);
     this.HomeComponent = new Home(this.contentWrapper);
-
     this.libraryItemComponent = new LibraryItem((id) => {
       this.artistId = id;
       this.handleArtistSelect(id);
     });
+    this.user = JSON.parse(localStorage.getItem("user"));
+    this.authButton = new AuthButton(this.headerAction, !!this.user);
+    this.authButton.render();
+
+    this.authModal = new AuthModal();
 
     this.init();
   }
@@ -37,19 +40,21 @@ class HomePage {
   }
 
   setUpEvent() {
-    const signupBtn = document.querySelector(".signup-btn");
-    const loginBtn = document.querySelector(".login-btn");
     const searchBtn = document.querySelector(".search-library-btn");
     const inputSearch = document.querySelector(".search-library-input");
     const homeBtn = document.querySelector(".home-btn");
+    const signupBtn = this.headerAction.querySelector(".signup-btn");
+    const loginBtn = this.headerAction.querySelector(".login-btn");
 
-    signupBtn.addEventListener("click", () => {
-      this.authModal.openWithSignup();
-    });
+    if (signupBtn && loginBtn) {
+      signupBtn.onclick = () => {
+        this.authModal.openWithSignup();
+      };
 
-    loginBtn.addEventListener("click", () => {
-      this.authModal.openWithLogin();
-    });
+      loginBtn.onclick = () => {
+        this.authModal.openWithLogin();
+      };
+    }
 
     homeBtn.addEventListener("click", () => {
       this.contentWrapper.innerHTML = "";

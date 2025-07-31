@@ -1,16 +1,19 @@
 import HttpRequest from "./HttpRequest.js";
 
 class AuthService {
-  constructor(
+  constructor() {
+    this.httpRequest = HttpRequest;
+    this._authUser = null;
+    this.headerAction = document.querySelector(".header-actions");
+  }
+
+  setDom(
     userNameSignUpField,
     emailSignUpField,
     passwordSignUpField,
     emailLoginField,
     passwordLoginField
   ) {
-    this.httpRequest = HttpRequest;
-    this._authUser = null;
-
     this.userNameSignUpField = userNameSignUpField;
     this.emailSignUpField = emailSignUpField;
     this.passwordSignUpField = passwordSignUpField;
@@ -22,9 +25,8 @@ class AuthService {
     this.emailSignUpError = document.querySelector(".signup-email-err");
     this.passwordSignUpError = document.querySelector(".signup-pass-err");
   }
-
   handleSignUpError(response, email, password, userName) {
-    if (!response.success) {
+    if (!response.success && response.success !== undefined) {
       const error = response.errorBody.error;
 
       if (error.code === "EMAIL_EXISTS") {
@@ -42,8 +44,10 @@ class AuthService {
       if (error.code === "INVALID_CREDENTIALS") {
         email.textContent = error.message;
         this.setFieldInvalid(email);
-        userName.textContent = error.message;
-        this.setFieldInvalid(userName);
+        if (userName) {
+          userName.textContent = error.message;
+          this.setFieldInvalid(userName);
+        }
         return true;
       }
 
@@ -84,10 +88,18 @@ class AuthService {
         this.userNameSignUpField
       )
     ) {
-      const { accessToken, user } = response;
+      console.log(response);
+      const { access_token } = response.data;
+      const user = response.data.user;
+
       this._authUser = user;
-      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("accessToken", access_token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      return true;
     }
+
+    return false;
   }
 
   async loginUser(data) {
@@ -102,15 +114,20 @@ class AuthService {
           this.passwordLoginField
         )
       ) {
-        const { accessToken, user } = response;
+        const { access_token } = response.data;
+        const user = response.data.user;
         this._authUser = user;
-        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("accessToken", access_token);
+        localStorage.setItem("user", JSON.stringify(user));
+
+        return true;
       }
+
+      return false;
     } catch (error) {
       console.error(error);
     }
   }
-
 
   isLoggedIn() {
     return !!localStorage.getItem("accessToken");
@@ -119,6 +136,7 @@ class AuthService {
   logout() {
     this._authUser = null;
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("user");
   }
 
   get authUser() {

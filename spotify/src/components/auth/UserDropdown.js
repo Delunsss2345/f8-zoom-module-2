@@ -1,11 +1,15 @@
+import AuthService from "../../services/api/AuthService.js";
 import { KEYS, MODAL_CLASSES } from "../../utils/constants.js";
+import AuthButton from "./AuthButton.js";
 
 class UserDropdown {
   constructor() {
+    this.userMenu = document.querySelector(".user-menu");
     this.userAvatar = document.getElementById("userAvatar");
     this.userDropdown = document.getElementById("userDropdown");
     this.logoutBtn = document.getElementById("logoutBtn");
-
+    this.authService = new AuthService();
+    this.headerAction = document.querySelector(".header-actions");
     this.init();
   }
 
@@ -52,7 +56,9 @@ class UserDropdown {
 
   handleLogout() {
     this.closeDropdown();
-    console.log("Logout clicked");
+    this.authService.logout();
+    this.authButtons = new AuthButton(this.headerAction, false);
+    this.authButtons.render();
   }
 }
 

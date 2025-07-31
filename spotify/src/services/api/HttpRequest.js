@@ -54,7 +54,9 @@ class HttpRequest {
   async post(path, body, accessToken = null) {
     try {
       const data = await this._fetchApi(path, "POST", body, accessToken);
-      if (!data.success) {
+
+      console.log(data) ; 
+      if (!data.success && data.errorBody) {
         return data;
       }
 

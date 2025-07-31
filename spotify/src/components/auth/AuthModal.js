@@ -1,6 +1,7 @@
 import AuthService from "../../services/api/AuthService.js";
 import { KEYS, MODAL_CLASSES } from "../../utils/constants.js";
 import { toggleBodyScroll } from "../../utils/helpers.js";
+import AuthButton from "./AuthButton.js";
 
 class AuthModal {
   constructor() {
@@ -15,13 +16,16 @@ class AuthModal {
     this.modalContainer = document.querySelector(".modal-container");
     this.overLay = document.querySelector(".modal-overlay");
 
+    this.headerAction = document.querySelector(".header-actions");
+
     this.userNameSignUpField = document.getElementById("signupUsername");
     this.emailSignUpField = document.getElementById("signupEmail");
     this.passwordSignUpField = document.getElementById("signupPassword");
 
     this.emailLoginField = document.getElementById("loginEmail");
     this.passwordLoginField = document.getElementById("loginPassword");
-    this.authService = new AuthService(
+    this.authService = new AuthService();
+    this.authService.setDom(
       this.userNameSignUpField,
       this.emailSignUpField,
       this.passwordSignUpField,
@@ -71,19 +75,34 @@ class AuthModal {
         email: this.emailSignUpField.value.trim(),
         password: this.passwordSignUpField.value.trim(),
       };
-      await this.authService.registerUser(data);
+      const result = await this.authService.registerUser(data);
+      if (result) {
+        this.signupForm.querySelector(".auth-form-content").reset();
+        this.animationSetup("close");
+        this.authButtons = new AuthButton(this.headerAction, true);
+        this.authButtons.render();
+      }
     };
 
     this.submitLogin.onclick = async (e) => {
       e.preventDefault();
       const data = {
         email: this.emailLoginField.value.trim(),
-        password: this.emailLoginField.value.trim(),
+        password: this.passwordLoginField.value.trim(),
       };
-      await this.authService.loginUser(data);
+      console.log(data);
+      const result = await this.authService.loginUser(data);
+      if (result) {
+        this.loginForm.querySelector(".auth-form-content").reset();
+        this.animationSetup("close");
+        this.authButtons = new AuthButton(this.headerAction, true);
+        this.authButtons.render();
+      }
     };
 
-    this.modalClose.addEventListener("click", () => this.closeModal());
+    this.modalClose.addEventListener("click", (e) => {
+      this.animationSetup("close");
+    });
     this.authModal.addEventListener("click", (e) => {
       if (e.target === this.authModal) {
         this.animationSetup("close");
