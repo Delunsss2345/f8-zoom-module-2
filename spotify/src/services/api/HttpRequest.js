@@ -41,9 +41,13 @@ class HttpRequest {
     }
   }
 
-  async get(path) {
+  async get(path, accessToken = null) {
+    const body = null;
     try {
-      const data = await this._fetchApi(path, "GET");
+      const data = await this._fetchApi(path, "GET", body, accessToken);
+      if (!data.success && data.errorBody) {
+        return data;
+      }
       return { success: true, data };
     } catch (err) {
       console.error(err.message);
@@ -55,7 +59,7 @@ class HttpRequest {
     try {
       const data = await this._fetchApi(path, "POST", body, accessToken);
 
-      console.log(data) ; 
+      console.log(data);
       if (!data.success && data.errorBody) {
         return data;
       }

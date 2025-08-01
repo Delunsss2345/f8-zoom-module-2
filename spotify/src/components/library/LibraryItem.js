@@ -5,7 +5,7 @@ class LibraryItem {
     this.onArtistSelect = onArtistSelect;
   }
 
-  createLibraryItem(id, title, imageUrl, isActive = false) {
+  createLibraryItem(id, title, imageUrl, modePlayList = false, isActive = false) {
     const container = createElement("div", { className: "library-item" });
 
     container.onclick = (e) => {

@@ -5,7 +5,10 @@ import ContextMenu from "../components/contextMenu/contextMenu.js";
 import Home from "../components/home/Home.js";
 import LibraryItem from "../components/library/LibraryItem.js";
 import SortDropdown from "../components/library/SortDropdown.js";
+import Playlist from "../components/playlist/PLayList.js";
+import PlaylistEdit from "../components/playlist/PlayListEdit.js";
 import ArtistService from "../services/api/ArtistService.js";
+import PlayListService from "../services/api/PlayListService.js";
 import TrackService from "../services/api/TrackService.js";
 import { MODAL_CLASSES } from "../utils/constants.js";
 
@@ -19,12 +22,15 @@ class HomePage {
     this.sortDropdown = new SortDropdown();
     this.contextMenuComponent = new ContextMenu();
     this.contentComponent = new ArtistHero(this.contentWrapper);
+    this.playListComponent = new Playlist(this.contentWrapper);
+    this.playListEditComponent = new PlaylistEdit(this.contentWrapper);
     this.HomeComponent = new Home(this.contentWrapper);
     this.libraryItemComponent = new LibraryItem((id) => {
       this.artistId = id;
       this.handleArtistSelect(id);
     });
     this.user = JSON.parse(localStorage.getItem("user"));
+    this.accessToken = localStorage.getItem("accessToken");
     this.authButton = new AuthButton(this.headerAction, !!this.user);
     this.authButton.render();
 
@@ -40,6 +46,7 @@ class HomePage {
   }
 
   setUpEvent() {
+    const createBtn = document.querySelector(".create-btn");
     const searchBtn = document.querySelector(".search-library-btn");
     const inputSearch = document.querySelector(".search-library-input");
     const homeBtn = document.querySelector(".home-btn");
@@ -77,6 +84,13 @@ class HomePage {
       }, 800);
     });
 
+    if (this.user && this.accessToken) {
+      createBtn.onclick = async () => {
+        const response = await PlayListService.createPlayList(this.accessToken);
+        this.playListEditComponent.createPlaylistPage(response.data.playlists);
+      };
+    }
+
     searchBtn.addEventListener("click", () => {
       inputSearch.style.visibility = "visible";
       inputSearch.style.opacity = "1";
@@ -106,8 +120,16 @@ class HomePage {
     });
   }
 
+  //Hàm chọn nghệ sĩ , và playList
   async handleArtistSelect(id) {
     try {
+      //Get id nếu phải id dạng playlist thì trả về component playlist
+      const playList = await PlayListService.getPlayListById(id);
+      if (playList.success) {
+        const data = playList.data;
+        this.playListComponent.createPlaylistPage(data.image_url, data.name);
+        return;
+      }
       const { artist, tracks } = await ArtistService.getArtistDetails(id);
       this.contentComponent.render(artist, tracks);
     } catch (error) {
@@ -121,8 +143,16 @@ class HomePage {
 
       if (response.success) {
         const data = response.data.artists;
+        let dataMyPlayList;
+
+        if (this.user && this.accessToken) {
+          const myPlayList = await PlayListService.getMyPlayList(
+            this.accessToken
+          );
+          dataMyPlayList = [...myPlayList.data.playlists, ...data];
+        }
         this.library = data;
-        this.renderLibrary(data);
+        this.renderLibrary(dataMyPlayList);
         this.HomeComponent.render(data);
       }
     } catch (error) {
@@ -180,22 +210,27 @@ class HomePage {
     return sorted;
   }
 
-  renderLibrary(artists, sortBy, value) {
+  renderLibrary(libraries, sortBy, value) {
     if (sortBy) {
       console.log(sortBy);
-      artists = this.sortArtists(artists, sortBy);
+      libraries = this.sortArtists(libraries, sortBy);
     }
 
     if (value) {
-      artists = this.filterArtists(artists, value);
+      libraries = this.filterArtists(libraries, value);
     }
 
     this.libraryContent.innerHTML = "";
-    artists.forEach((artist, idx) => {
+    libraries.forEach((library) => {
+      let modePlayList;
+      if (library) {
+        modePlayList = library.user_username;
+      }
       const libraryItem = this.libraryItemComponent.createLibraryItem(
-        artist.id,
-        artist.name,
-        artist.image_url
+        library.id,
+        library.name,
+        library.image_url,
+        modePlayList
       );
 
       this.libraryContent.appendChild(libraryItem);
