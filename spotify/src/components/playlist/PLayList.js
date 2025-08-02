@@ -49,8 +49,11 @@ class Playlist {
           font-weight: 300;
         `,
       },
-      textContent: "♡",
     });
+    const icon = createElement("i", {
+      className: "fas fa-heart",
+    });
+    img.appendChild(icon);
 
     playlistImageContainer.appendChild(img);
 
@@ -111,8 +114,6 @@ class Playlist {
         `,
       },
     });
-
-   
 
     heroContent.appendChild(playlistLabel);
     heroContent.appendChild(name);

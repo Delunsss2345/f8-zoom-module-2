@@ -84,7 +84,7 @@ class ArtistHero {
 
   render(artistData, tracks) {
     const { background_image_url, name, monthly_listeners } = artistData;
-
+    console.log({ background_image_url, name, monthly_listeners });
     this.container.innerHTML = "";
     this.container.appendChild(
       this.createArtistPage(background_image_url, name, monthly_listeners)
@@ -96,7 +96,6 @@ class ArtistHero {
       this.process,
       this.player
     );
-
     this.trackListComponent.init(tracks, artistData.name);
   }
 }

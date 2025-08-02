@@ -1,14 +1,32 @@
+import ArtistService from "../../services/api/ArtistService.js";
 import { createElement } from "../../utils/helpers.js";
+import ArtistHero from "../artist/ArtistHero.js";
 
 class Home {
   constructor(container) {
     this.container = container;
+    this.contentWrapper = document.querySelector(".content-wrapper");
+    this.contentComponent = new ArtistHero(this.contentWrapper);
+  }
+  async handleArtistHome(id) {
+    try {
+      const { artist, tracks } = await ArtistService.getArtistDetails(id);
+      console.log(artist, tracks);
+      this.contentComponent.render(artist, tracks);
+    } catch (error) {
+      console.error("Lỗi lấy artist details", error);
+    }
   }
   render(data, title = "Nghệ sĩ yêu thích của bạn", mode = "artist") {
     const section = createElement("section", {
       className: "home",
     });
 
+    // section.onclick = () => {
+    //   this.handelArtist(data.id);
+    // };
+
+    console.log(data);
     const header = createElement("div", {
       className: "section-header",
       innerHTML: `
@@ -34,6 +52,12 @@ class Home {
         className: "content-img",
       });
       figure.appendChild(img);
+
+      if (mode === "artist") {
+        figure.onclick = () => {
+          this.handleArtistHome(item.id);
+        };
+      }
 
       const title = createElement("div", {
         className: "content-title",

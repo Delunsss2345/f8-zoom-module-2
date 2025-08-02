@@ -11,6 +11,7 @@ import ArtistService from "../services/api/ArtistService.js";
 import PlayListService from "../services/api/PlayListService.js";
 import TrackService from "../services/api/TrackService.js";
 import { MODAL_CLASSES } from "../utils/constants.js";
+import { removeActiveClass } from "../utils/helpers.js";
 
 class HomePage {
   constructor() {
@@ -24,7 +25,7 @@ class HomePage {
     this.contentComponent = new ArtistHero(this.contentWrapper);
     this.playListComponent = new Playlist(this.contentWrapper);
     this.playListEditComponent = new PlaylistEdit(this.contentWrapper);
-    this.HomeComponent = new Home(this.contentWrapper);
+    this.HomeComponent = new Home(this.contentWrapper, this.handleArtistHome);
     this.libraryItemComponent = new LibraryItem((id) => {
       this.artistId = id;
       this.handleArtistSelect(id);
@@ -52,6 +53,7 @@ class HomePage {
     const homeBtn = document.querySelector(".home-btn");
     const signupBtn = this.headerAction.querySelector(".signup-btn");
     const loginBtn = this.headerAction.querySelector(".login-btn");
+    const nabs = document.querySelectorAll(".nav-tab");
 
     if (signupBtn && loginBtn) {
       signupBtn.onclick = () => {
@@ -64,6 +66,7 @@ class HomePage {
     }
 
     homeBtn.addEventListener("click", () => {
+      removeActiveClass(".library-item");
       this.contentWrapper.innerHTML = "";
       this.HomeComponent.render(this.library);
       this.HomeComponent.render(
@@ -71,6 +74,20 @@ class HomePage {
         "Nhạc phổ biến hiện nay",
         "album"
       );
+    });
+
+    nabs.forEach((nav) => {
+      nav.onclick = (e) => {
+        removeActiveClass(".nav-tab");
+        e.target.closest(".nav-tab").classList.add("active");
+        const contentNav = nav.textContent;
+        console.log(contentNav);
+        if (contentNav === "Artists") {
+          this.loadArtists(true, "Artist");
+        } else {
+          this.loadArtists(true, "Playlists");
+        }
+      };
     });
 
     let debounceTimer;
@@ -137,7 +154,7 @@ class HomePage {
     }
   }
 
-  async loadArtists() {
+  async loadArtists(mode = false, sortBy = "Playlists") {
     try {
       const response = await ArtistService.getArtists();
 
@@ -145,15 +162,17 @@ class HomePage {
         const data = response.data.artists;
         let dataMyPlayList;
 
-        if (this.user && this.accessToken) {
+        if (this.user && this.accessToken && sortBy === "Playlists") {
           const myPlayList = await PlayListService.getMyPlayList(
             this.accessToken
           );
           dataMyPlayList = [...myPlayList.data.playlists, ...data];
         }
         this.library = data;
-        this.renderLibrary(dataMyPlayList);
-        this.HomeComponent.render(data);
+        this.renderLibrary(sortBy === "Playlists" ? dataMyPlayList : data);
+        if (!mode) {
+          this.HomeComponent.render(data);
+        }
       }
     } catch (error) {
       console.error("Lỗi lấy artists", error);
