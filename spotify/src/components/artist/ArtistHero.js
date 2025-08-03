@@ -60,8 +60,15 @@ class ArtistHero {
     });
     const playBtn = createElement("button", { className: "play-btn-large" });
     const playIcon = createElement("i", { className: "fas fa-play" });
+
+    const followBtn = createElement("button", {
+      className: "follow-btn",
+      textContent: "Theo dõi",
+    });
+
     playBtn.appendChild(playIcon);
     artistControls.appendChild(playBtn);
+    artistControls.appendChild(followBtn);
 
     const popularSection = createElement("section", {
       className: "popular-section",

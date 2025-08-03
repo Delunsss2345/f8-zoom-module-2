@@ -18,15 +18,14 @@ class Home {
     }
   }
   render(data, title = "Nghệ sĩ yêu thích của bạn", mode = "artist") {
+    // Tạo thẻ <section> để chứa toàn bộ nội dung
     const section = createElement("section", {
       className: "home",
     });
 
-    // section.onclick = () => {
-    //   this.handelArtist(data.id);
-    // };
-
     console.log(data);
+
+    // Tạo phần tiêu đề (header) của section, bao gồm tiêu đề và nút "Hiện tất cả"
     const header = createElement("div", {
       className: "section-header",
       innerHTML: `
@@ -35,11 +34,14 @@ class Home {
     `,
     });
 
+    // Tạo phần chứa các card nội dung (dạng lưới)
     const contentGrid = createElement("div", {
       className: "content-grid",
     });
 
+    // Duyệt qua từng phần tử trong mảng
     data.forEach((item) => {
+      // Tạo ảnh đại diện của artist hoặc album
       const img = createElement("img", {
         className: mode === "artist" ? "artist-img" : "album-img",
         attributes: {
@@ -53,40 +55,48 @@ class Home {
       });
       figure.appendChild(img);
 
+      // Nếu là nghệ sĩ, gắn sự kiện click để mở trang chi tiết nghệ sĩ
       if (mode === "artist") {
         figure.onclick = () => {
           this.handleArtistHome(item.id);
         };
       }
 
+      //  Tên nghệ sĩ hoặc tên album
       const title = createElement("div", {
         className: "content-title",
         textContent: mode === "artist" ? item.name : item.artist_name,
       });
 
+      // "Nghệ sĩ" nếu là mode artist, còn không thì là tên album
       const subtitle = createElement("div", {
         className: "content-subtitle",
         textContent: mode === "artist" ? "Nghệ sĩ" : item.name,
       });
 
+      // Bọc tiêu đề và phụ đề lại trong 1 khối info
       const info = createElement("div", {
         className: "content-info",
       });
       info.appendChild(title);
       info.appendChild(subtitle);
 
+      // Gộp phần ảnh và info thành 1 card
       const card = createElement("div", {
         className: "content-card",
       });
       card.appendChild(figure);
       card.appendChild(info);
 
+      // Thêm card vào lưới
       contentGrid.appendChild(card);
     });
 
+    // Thêm phần header và lưới nội dung vào section
     section.appendChild(header);
     section.appendChild(contentGrid);
 
+    // Thêm section vào container chính
     this.container.appendChild(section);
   }
 }

@@ -5,6 +5,7 @@ class PlayListService {
     this.httpRequest = HttpRequest;
   }
 
+  // getPlayList auth
   async getMyPlayList(accessToken) {
     if (!accessToken) {
       return;
@@ -12,10 +13,12 @@ class PlayListService {
     return await this.httpRequest.get(`/me/playlists`, accessToken);
   }
 
+  // getPlayList by id
   async getPlayListById(id) {
     return await this.httpRequest.get(`/playlists/${id}`);
   }
 
+  // create Play List
   async createPlayList(accessToken) {
     if (!accessToken) {
       return;

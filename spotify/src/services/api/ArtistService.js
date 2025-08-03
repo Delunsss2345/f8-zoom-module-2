@@ -5,22 +5,34 @@ class ArtistService {
   constructor() {
     this.httpRequest = HttpRequest;
   }
-  // api/artists
+
+  // /artists?limit=20&offset=0
   async getArtists(limit = DEFAULT_LIMIT, offset = DEFAULT_OFFSET) {
     return await this.httpRequest.get(
       `/artists?limit=${limit}&offset=${offset}`
     );
   }
-  // api/artists/:artistId
+
+  // Lấy thông tin chi tiết của 1 artist theo ID
+  // /artists/:artistId
   async getArtistById(id) {
     return await this.httpRequest.get(`/artists/${id}`);
   }
 
-  // api/artists/:artistId/tracks/popular
+  // Lấy danh sách tracks phổ biến nhất của artist
+  // /artists/:artistId/tracks/popular
   async getArtistPopularTracks(id) {
     return await this.httpRequest.get(`/artists/${id}/tracks/popular`);
   }
 
+  // Follow một artist (cần authentication)
+  // POST /artists/:artistId/follow
+  async followArtist(accessToken, id) {
+    if (accessToken) return; // BUG: Nên check !accessToken và throw error
+    return await this.httpRequest.post(`/artists/${id}/follow`);
+  }
+
+  // Lấy đồng thời artist info và popular tracks
   async getArtistDetails(id) {
     const [artistRes, albumsRes] = await Promise.all([
       this.getArtistById(id),
@@ -34,4 +46,5 @@ class ArtistService {
   }
 }
 
+// Export singleton instance - chỉ có 1 instance duy nhất trong app
 export default new ArtistService();

@@ -6,18 +6,23 @@ class Playlist {
   }
 
   createPlaylistPage(imageUrl, playlistName) {
+    // Xóa nội dung cũ trong container
     this.container.innerHTML = "";
 
+    // Tạo wrapper chứa toàn bộ nội dung
     const contentWrapper = createElement("div", {
       className: "content-wrapper",
     });
 
+    // Tạo section hero chứa ảnh và thông tin playlist
     const artistHero = createElement("section", { className: "artist-hero" });
 
+    // Tạo phần nền cho hero
     const heroBackground = createElement("div", {
       className: "hero-background",
     });
 
+    // Container cho ảnh playlist nằm dưới góc trái
     const playlistImageContainer = createElement("div", {
       className: "playlist-image-container",
       attributes: {
@@ -32,6 +37,7 @@ class Playlist {
       },
     });
 
+    // Ảnh playlist được thể hiện bằng div có icon trái tim ở giữa
     const img = createElement("div", {
       className: "hero-image playlist-cover",
       attributes: {
@@ -50,6 +56,8 @@ class Playlist {
         `,
       },
     });
+
+    // Icon trái tim ở giữa ảnh
     const icon = createElement("i", {
       className: "fas fa-heart",
     });
@@ -57,6 +65,7 @@ class Playlist {
 
     playlistImageContainer.appendChild(img);
 
+    // Tạo lớp overlay mờ phía trên background
     const overlay = createElement("div", {
       className: "hero-overlay",
       attributes: {
@@ -69,9 +78,11 @@ class Playlist {
       },
     });
 
+    // Gắn overlay và ảnh vào background
     heroBackground.appendChild(overlay);
     heroBackground.appendChild(playlistImageContainer);
 
+    // Nội dung phần hero: tiêu đề và label
     const heroContent = createElement("div", {
       className: "hero-content",
       attributes: {
@@ -84,6 +95,7 @@ class Playlist {
       },
     });
 
+    // Nhãn "Playlist"
     const playlistLabel = createElement("span", {
       className: "playlist-label",
       textContent: "Playlist",
@@ -99,6 +111,7 @@ class Playlist {
       },
     });
 
+    // Tên playlist
     const name = createElement("h1", {
       className: "artist-name",
       textContent: playlistName,
@@ -115,29 +128,36 @@ class Playlist {
       },
     });
 
+    // Gắn label và tên vào hero content
     heroContent.appendChild(playlistLabel);
     heroContent.appendChild(name);
 
+    // Gắn background và content vào hero
     artistHero.appendChild(heroBackground);
     artistHero.appendChild(heroContent);
 
+    // Section chứa các nút điều khiển như Play
     const artistControls = createElement("section", {
       className: "artist-controls",
     });
 
+    // Nút Play
     const playBtn = createElement("button", { className: "play-btn-large" });
     const playIcon = createElement("i", { className: "fas fa-play" });
     playBtn.appendChild(playIcon);
-
     artistControls.appendChild(playBtn);
 
+    // Section sẽ hiển thị danh sách bài hát phổ biến trong playlist
     const popularSection = createElement("section", {
       className: "popular-section",
     });
 
+    // Gắn các section con vào wrapper
     contentWrapper.appendChild(artistHero);
     contentWrapper.appendChild(artistControls);
     contentWrapper.appendChild(popularSection);
+
+    // Gắn wrapper vào container chính
     this.container.appendChild(contentWrapper);
   }
 }

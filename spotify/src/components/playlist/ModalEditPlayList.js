@@ -16,43 +16,48 @@ class ModelEditPlayList {
 
   render(options = {}) {
     const {
-      playlistName = "My Playlist #3",
-      playlistDescription = "",
-      playlistImage = null,
+      playlistName = "My Playlist #3", // Tên playlist mặc định
+      playlistDescription = "", // Mô tả playlist mặc định
+      playlistImage = null, // Ảnh playlist mặc định
       onSave = null,
       onCancel = null,
     } = options;
 
+    // Lưu lại callback để gọi sau khi người dùng thao tác
     this.onSave = onSave;
     this.onCancel = onCancel;
+
+    // Lưu dữ liệu playlist vào biến nội bộ
     this.playlistData = {
       name: playlistName,
       description: playlistDescription,
       image: playlistImage,
     };
-
-    this.close();
-
+    // Tạo modal DOM với nội dung từ playlist
     this.modal = this.createModal(
       playlistName,
       playlistDescription,
       playlistImage
     );
 
+    // Gắn modal vào body để hiển thị trên trang
     document.body.appendChild(this.modal);
     this.isVisible = true;
 
+    // Gán các sự kiện
     this.setupEventListeners();
 
+    // Sau khi modal hiển thị, focus vào ô nhập tên playlist
     setTimeout(() => {
       const nameInput = this.modal.querySelector("#editPlaylistName");
       if (nameInput) {
-        nameInput.focus();
-        nameInput.select();
+        nameInput.focus(); // Đưa con trỏ vào ô input
+        nameInput.select(); // Bôi đen toàn bộ text
       }
     }, 100);
   }
 
+  // Tạo ra modal
   createModal(playlistName, playlistDescription, playlistImage) {
     const overlay = createElement("div", {
       className: "modal-edit-overlay",
@@ -81,6 +86,7 @@ class ModelEditPlayList {
     return overlay;
   }
 
+  // Tái tạo header modal edit
   createHeader() {
     const header = createElement("div", {
       className: "modal-edit-header",
@@ -107,6 +113,7 @@ class ModelEditPlayList {
     return header;
   }
 
+  // Tạo model content
   createContent(playlistName, playlistDescription, playlistImage) {
     const content = createElement("div", {
       className: "modal-edit-content",
@@ -127,6 +134,7 @@ class ModelEditPlayList {
     return content;
   }
 
+  // Tak
   createImageSection(playlistImage) {
     const section = createElement("div", {
       className: "modal-edit-image-section",
@@ -251,37 +259,44 @@ class ModelEditPlayList {
   }
 
   setupEventListeners() {
-    if (!this.modal) return;
+    if (!this.modal) return; // Nếu modal chưa được tạo thì thoát ra
 
+    // Bắt sự kiện click vào nút "x" để đóng modal
     const closeBtn = this.modal.querySelector(".modal-edit-close-btn");
     closeBtn?.addEventListener("click", () => this.close());
 
+    // Bắt sự kiện click ra ngoài modal (vào overlay) để đóng modal
     this.modal.addEventListener("click", (e) => {
       if (e.target === this.modal) {
         this.close();
       }
     });
 
+    // Bắt sự kiện phím
     document.addEventListener("keydown", this.handleKeyDown.bind(this));
 
+    // Mở hộp chọn file khi click vào ảnh
     const imagePreview = this.modal.querySelector("#editImagePreview");
     const imageInput = this.modal.querySelector("#editImageInput");
 
     imagePreview?.addEventListener("click", () => {
-      imageInput?.click();
+      imageInput?.click(); // Kích hoạt input file
     });
 
+    // Khi chọn file ảnh, xử lý và hiển thị ảnh mới
     imageInput?.addEventListener("change", (e) => {
       this.handleImageUpload(e);
     });
 
+    // Bắt sự kiện click vào nút "Save" để lưu dữ liệu
     const saveBtn = this.modal.querySelector("#editSaveBtn");
     saveBtn?.addEventListener("click", () => this.handleSave());
 
+    // Tự động tăng chiều cao của textarea khi người dùng nhập thêm dòng
     const textarea = this.modal.querySelector("#editPlaylistDescription");
     textarea?.addEventListener("input", (e) => {
-      e.target.style.height = "auto";
-      e.target.style.height = e.target.scrollHeight + "px";
+      e.target.style.height = "auto"; // Reset lại để đo chiều cao mới
+      e.target.style.height = e.target.scrollHeight + "px"; // Gán chiều cao theo nội dung
     });
   }
 
@@ -296,70 +311,84 @@ class ModelEditPlayList {
   }
 
   handleImageUpload(e) {
-    const file = e.target.files[0];
-    if (!file) return;
+    const file = e.target.files[0]; // Lấy file đầu tiên từ input[type="file"]
+    if (!file) return; // Nếu không có file nào được chọn thì thoát
 
+    // Danh sách các định dạng ảnh hợp lệ
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     if (!validTypes.includes(file.type)) {
       alert("Please select a valid image file (JPEG, PNG, WebP)");
       return;
     }
 
-    const reader = new FileReader();
+    const reader = new FileReader(); // Tạo đối tượng đọc file
     reader.onload = (e) => {
-      const imagePreview = this.modal.querySelector("#editImagePreview");
+      // Khi đọc file xong, tiến hành hiển thị ảnh
+      const imagePreview = this.modal.querySelector("#editImagePreview"); // Thẻ chứa ảnh preview
       if (imagePreview) {
-        imagePreview.innerHTML = "";
+        imagePreview.innerHTML = ""; // Xóa nội dung hiện tại (nếu có)
 
+        // Tạo thẻ <img> mới để hiển thị ảnh vừa chọn
         const img = createElement("img", {
           className: "modal-edit-preview-img",
           attributes: { src: e.target.result, alt: "Playlist cover" },
         });
 
+        // Tạo lớp overlay với icon và chữ "Change photo"
         const overlay = createElement("div", {
           className: "modal-edit-image-overlay",
           innerHTML: `
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-              <path d="M3 4V1h2v3h3v2H5v3H3V6H0V4h3zm3 6V7h3V4h7l1.83 2H21c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V10h3zm7 9c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0-3l1.25-2.75L16 10l-2.75 1.25L12 14l2.75-1.25L16 10z"/>
-            </svg>
-            <span>Change photo</span>
-          `,
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+            <path d="M3 4V1h2v3h3v2H5v3H3V6H0V4h3zm3 6V7h3V4h7l1.83 2H21c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V10h3zm7 9c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0-3l1.25-2.75L16 10l-2.75 1.25L12 14l2.75-1.25L16 10z"/>
+          </svg>
+          <span>Change photo</span>
+        `,
         });
 
+        // Thêm ảnh và overlay vào khung preview
         imagePreview.appendChild(img);
         imagePreview.appendChild(overlay);
       }
+
+      // Lưu đường dẫn ảnh vào dữ liệu playlist
       this.playlistData.image = e.target.result;
     };
+
+    // Đọc file thành dạng URL base64 để hiển thị ảnh
     reader.readAsDataURL(file);
   }
 
   handleSave() {
+    // Tìm input nhập tên playlist
     const nameInput = this.modal.querySelector("#editPlaylistName");
+    // Tìm input nhập mô tả playlist
     const descriptionInput = this.modal.querySelector(
       "#editPlaylistDescription"
     );
 
-    if (!nameInput) return;
+    if (!nameInput) return; // Nếu không tìm thấy ô tên thì thoát
 
-    const name = nameInput.value.trim();
+    const name = nameInput.value.trim(); // Lấy giá trị tên và loại bỏ khoảng trắng thừa
     if (!name) {
+      // Nếu tên bị bỏ trống, cảnh báo và focus lại vào input
       alert("Playlist name is required");
       nameInput.focus();
       return;
     }
 
+    // Tạo object chứa dữ liệu playlist đã cập nhật
     const updatedData = {
       name: name,
-      description: descriptionInput?.value.trim() || "",
-      image: this.playlistData.image,
+      description: descriptionInput?.value.trim() || "", // Mô tả có thể rỗng
+      image: this.playlistData.image, // Ảnh lấy từ biến lưu trữ trước đó
     };
 
+    // Gọi hàm callback `onSave` nếu có (thường để xử lý lưu vào backend hoặc cập nhật giao diện)
     if (this.onSave && typeof this.onSave === "function") {
-      this.onSave(updatedData);
+      this.onSave(updatedData); // Truyền dữ liệu cập nhật vào
     }
 
-    this.close();
+    this.close(); // Đóng modal sau khi lưu
   }
 
   close() {

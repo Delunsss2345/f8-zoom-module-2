@@ -1332,7 +1332,6 @@
   text-overflow: ellipsis;
 }
 
-
 /* Modal Overlay */
 .modal-edit-overlay {
   position: fixed;
@@ -1393,7 +1392,7 @@
   font-size: 24px;
   font-weight: 700;
   margin: 0;
-  font-family: 'Spotify Circular', 'Helvetica Neue', Arial, sans-serif;
+  font-family: "Spotify Circular", "Helvetica Neue", Arial, sans-serif;
 }
 
 .modal-edit-close-btn {
@@ -1479,7 +1478,7 @@
   font-size: 14px;
   font-weight: 600;
   gap: 8px;
-  font-family: 'Spotify Circular', 'Helvetica Neue', Arial, sans-serif;
+  font-family: "Spotify Circular", "Helvetica Neue", Arial, sans-serif;
 }
 
 .modal-edit-image-preview:hover .modal-edit-image-overlay {
@@ -1510,7 +1509,7 @@
   resize: none;
   outline: none;
   transition: background-color 0.2s ease, box-shadow 0.2s ease;
-  font-family: 'Spotify Circular', 'Helvetica Neue', Arial, sans-serif;
+  font-family: "Spotify Circular", "Helvetica Neue", Arial, sans-serif;
   box-sizing: border-box;
 }
 
@@ -1542,7 +1541,7 @@
   font-size: 11px;
   color: #b3b3b3;
   line-height: 1.4;
-  font-family: 'Spotify Circular', 'Helvetica Neue', Arial, sans-serif;
+  font-family: "Spotify Circular", "Helvetica Neue", Arial, sans-serif;
 }
 
 .modal-edit-disclaimer p {
@@ -1560,7 +1559,7 @@
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.2s ease, background-color 0.2s ease;
-  font-family: 'Spotify Circular', 'Helvetica Neue', Arial, sans-serif;
+  font-family: "Spotify Circular", "Helvetica Neue", Arial, sans-serif;
   min-width: 80px;
 }
 
@@ -1587,33 +1586,54 @@
     margin: 20px;
     max-height: 95vh;
   }
-  
+
   .modal-edit-content {
     padding: 16px;
   }
-  
+
   .modal-edit-form {
     flex-direction: column;
     gap: 20px;
   }
-  
+
   .modal-edit-image-preview {
     width: 120px;
     height: 120px;
     margin: 0 auto;
   }
-  
+
   .modal-edit-title {
     font-size: 20px;
   }
-  
+
   .modal-edit-header {
     padding: 16px 16px 0;
   }
-  
+
   .modal-edit-footer {
     padding: 0 16px 16px;
   }
+}
+
+.follow-btn {
+  margin-left: 16px;
+  padding: 8px 20px;
+  background-color: transparent;
+  border: 1px solid #fff;
+  color: #fff;
+  border-radius: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.follow-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.follow-btn.following {
+  background-color: #1db954;
+  border-color: #1db954;
 }
 
 @media (max-width: 480px) {
@@ -1622,10 +1642,9 @@
     height: 100%;
     border-radius: 0;
   }
-  
+
   .modal-edit-overlay {
     align-items: stretch;
     justify-content: stretch;
   }
 }
-

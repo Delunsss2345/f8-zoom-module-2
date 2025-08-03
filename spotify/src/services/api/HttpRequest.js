@@ -5,12 +5,15 @@ class HttpRequest {
     this.baseUrl = API_BASE_URL;
   }
 
+  // Success: { success: true, data: {...} }
+  // Error: { success: false, errorBody: {...} }
   async _fetchApi(path, method = "GET", body, accessToken = null) {
     try {
       const headers = {
         "Content-Type": "application/json",
       };
 
+      // Thêm Bearer token vào header nếu có
       if (accessToken) {
         headers["Authorization"] = `Bearer ${accessToken}`;
       }
@@ -20,6 +23,7 @@ class HttpRequest {
         headers,
       };
 
+      // Stringify body cho POST/PUT/PATCH requests
       if (body) {
         options.body = JSON.stringify(body);
       }
@@ -28,6 +32,7 @@ class HttpRequest {
 
       const res = await fetch(api, options);
 
+      // Handle HTTP error status codes
       if (!res.ok) {
         const errorBody = await res.json();
         return {
@@ -45,6 +50,7 @@ class HttpRequest {
     const body = null;
     try {
       const data = await this._fetchApi(path, "GET", body, accessToken);
+      // Kiếm tra nếu là error thì trả ngay success false đã trả về từ res ok
       if (!data.success && data.errorBody) {
         return data;
       }
@@ -60,6 +66,7 @@ class HttpRequest {
       const data = await this._fetchApi(path, "POST", body, accessToken);
 
       console.log(data);
+      // Kiếm tra nếu là error thì trả ngay success false đã trả về từ res ok
       if (!data.success && data.errorBody) {
         return data;
       }
@@ -74,6 +81,8 @@ class HttpRequest {
   async put(path, body, accessToken) {
     try {
       const data = await this._fetchApi(path, "PUT", body, accessToken);
+
+      // Kiếm tra nếu là error thì trả ngay success false đã trả về từ res ok
       if (!data.success && data.errorBody) {
         return data;
       }
@@ -108,4 +117,5 @@ class HttpRequest {
   }
 }
 
+// Export singleton instance - chỉ có 1 instance duy nhất trong app
 export default new HttpRequest();
