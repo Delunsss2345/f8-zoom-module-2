@@ -71,9 +71,12 @@ class HttpRequest {
     }
   }
 
-  async put(path, body) {
+  async put(path, body, accessToken) {
     try {
-      const data = await this._fetchApi(path, "PUT", body);
+      const data = await this._fetchApi(path, "PUT", body, accessToken);
+      if (!data.success && data.errorBody) {
+        return data;
+      }
       return { success: true, data };
     } catch (err) {
       console.error(err.message);
@@ -81,9 +84,12 @@ class HttpRequest {
     }
   }
 
-  async patch(path, body) {
+  async patch(path, body, accessToken) {
     try {
-      const data = await this._fetchApi(path, "PATCH", body);
+      const data = await this._fetchApi(path, "PATCH", body, accessToken);
+      if (!data.success && data.errorBody) {
+        return data;
+      }
       return { success: true, data };
     } catch (err) {
       console.error(err.message);

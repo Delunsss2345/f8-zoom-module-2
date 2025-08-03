@@ -76,6 +76,7 @@ class HomePage {
       );
     });
 
+    // Hàm lọc nghệ sĩ
     nabs.forEach((nav) => {
       nav.onclick = (e) => {
         removeActiveClass(".nav-tab");
@@ -83,9 +84,9 @@ class HomePage {
         const contentNav = nav.textContent;
         console.log(contentNav);
         if (contentNav === "Artists") {
-          this.loadArtists(true, "Artist");
+          this.loadArtistOld("Artist");
         } else {
-          this.loadArtists(true, "Playlists");
+          this.loadArtistOld("Playlists");
         }
       };
     });
@@ -104,7 +105,11 @@ class HomePage {
     if (this.user && this.accessToken) {
       createBtn.onclick = async () => {
         const response = await PlayListService.createPlayList(this.accessToken);
-        this.playListEditComponent.createPlaylistPage(response.data.playlists);
+        this.playListEditComponent.createPlaylistPage(
+          response.data.playlist.id,
+          this.user.username,
+          response.data.playlist.name
+        );
       };
     }
 
@@ -153,23 +158,25 @@ class HomePage {
       console.error("Lỗi lấy artist details", error);
     }
   }
-
-  async loadArtists(mode = false, sortBy = "Playlists") {
+  // Load Artist dùng chung cho cả home component có thể tuỳ biến việc render conponet
+  // có thể sort riêng library nếu muốn mode = true
+  async loadArtists(mode = false) {
     try {
       const response = await ArtistService.getArtists();
 
       if (response.success) {
         const data = response.data.artists;
-        let dataMyPlayList;
+        let dataMyPlayList = [...data];
 
-        if (this.user && this.accessToken && sortBy === "Playlists") {
+        if (this.user && this.accessToken) {
           const myPlayList = await PlayListService.getMyPlayList(
             this.accessToken
           );
           dataMyPlayList = [...myPlayList.data.playlists, ...data];
         }
         this.library = data;
-        this.renderLibrary(sortBy === "Playlists" ? dataMyPlayList : data);
+        this.libraryDataMyPlayList = dataMyPlayList;
+        this.renderLibrary(this.libraryDataMyPlayList);
         if (!mode) {
           this.HomeComponent.render(data);
         }
@@ -177,6 +184,13 @@ class HomePage {
     } catch (error) {
       console.error("Lỗi lấy artists", error);
     }
+  }
+
+  // Hỗ trợ việc loadArtist không cần gọi lại api
+  loadArtistOld(sortBy = "Playlists") {
+    this.renderLibrary(
+      sortBy === "Playlists" ? this.libraryDataMyPlayList : this.library
+    );
   }
 
   async loadPopularTracks() {

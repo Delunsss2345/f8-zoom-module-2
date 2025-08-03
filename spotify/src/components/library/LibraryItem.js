@@ -12,7 +12,9 @@ class LibraryItem {
     modePlayList = false,
     isActive = false
   ) {
-    const container = createElement("div", { className: "library-item" });
+    const container = createElement("div", {
+      className: `library-item ${modePlayList ? "play-liked" : ""}`,
+    });
 
     container.onclick = (e) => {
       removeActiveClass(".library-item");
@@ -44,7 +46,7 @@ class LibraryItem {
     if (modePlayList) {
       titleDiv = createElement("div", {
         className: "item-title",
-        textContent: "Liked Songs",
+        textContent: `${title}`,
       });
 
       const icon = createElement("i", {

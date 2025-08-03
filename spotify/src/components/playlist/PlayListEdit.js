@@ -1,11 +1,34 @@
+import PlayListService from "../../services/api/PlayListService.js";
 import { createElement } from "../../utils/helpers.js";
+import ArtistHero from "../artist/ArtistHero.js";
+import LibraryItem from "../library/LibraryItem.js";
+import ModelEditPlayList from "./ModalEditPlayList.js";
+import Playlist from "./PLayList.js";
 
 class PlaylistEdit {
   constructor(container) {
     this.container = container;
+    this.contentComponent = new ArtistHero(this.container);
+    this.playListComponent = new Playlist(this.container);
+    this.editPlayList = new ModelEditPlayList();
+    this.accessToken = localStorage.getItem("accessToken");
+    this.libraryContent = document.querySelector(".library-content");
+    this.libraryItemComponent = new LibraryItem((id) => {
+      this.playListId = id;
+      this.handlePlayList(id);
+    });
   }
+  async handlePlayList(id) {
+    try {
+      const playList = await PlayListService.getPlayListById(id);
+      const data = playList.data;
 
-  createPlaylistPage(imageUrl, playlistName) {
+      this.playListComponent.createPlaylistPage(data.image_url, data.name);
+    } catch (error) {
+      console.error("Lỗi lấy playListDetails details", error);
+    }
+  }
+  createPlaylistPage(id, username, playlistName) {
     this.container.innerHTML = "";
 
     const artistHero = createElement("section", {
@@ -85,6 +108,33 @@ class PlaylistEdit {
     imageBox.appendChild(chooseTextVN);
     imageBox.appendChild(chooseTextEN);
 
+    imageBox.onclick = () => {
+      this.editPlayList.render({
+        playlistName: `${playlistName}`,
+        playlistDescription: "Playlist description",
+        playlistImage: null,
+        onSave: async (data) => {
+          data.id = id;
+          console.log(data);
+          const response = await PlayListService.uploadPlayList(
+            this.accessToken,
+            data
+          );
+          console.log(response);
+          const newPlayList = response.data.playlist;
+          const playList = this.libraryItemComponent.createLibraryItem(
+            newPlayList.id,
+            newPlayList.name,
+            null,
+            true
+          );
+          this.libraryContent.prepend(playList);
+          const home = document.querySelector(".home-btn");
+          home.click();
+        },
+      });
+    };
+
     const infoBox = createElement("div", {
       className: "playlist-info-box",
       attributes: {
@@ -125,9 +175,9 @@ class PlaylistEdit {
         `,
       },
     });
-
+    const userUp = username.charAt(0).toUpperCase() + username.slice(1);
     const author = createElement("div", {
-      textContent: "Han • ",
+      textContent: `${userUp} • `,
       attributes: {
         style: `
           font-size: 14px;
@@ -281,18 +331,6 @@ class PlaylistEdit {
     this.container.appendChild(artistHero);
     this.container.appendChild(controlsSection);
     this.container.appendChild(searchSection);
-
-    imageBox.addEventListener("click", () => {
-      console.log("Choose photo clicked");
-    });
-
-    infoButton.addEventListener("click", () => {
-      console.log("Show info clicked");
-    });
-
-    closeButton.addEventListener("click", () => {
-      console.log("Close clicked");
-    });
   }
 }
 
