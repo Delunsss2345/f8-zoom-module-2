@@ -75,7 +75,7 @@ class HomePage {
     homeBtn.addEventListener("click", () => {
       removeActiveClass(".library-item");
       this.contentWrapper.innerHTML = "";
-      this.HomeComponent.render(this.library);
+      this.HomeComponent.render(this.libraryFull);
       this.HomeComponent.render(
         this.playlists,
         "Các playLists công khai",
@@ -180,9 +180,13 @@ class HomePage {
         id,
         this.accessToken
       );
-      console.log(artist);
 
-      this.contentComponent.render(artist, tracks, artist.id, artist.is_following);
+      this.contentComponent.render(
+        artist,
+        tracks,
+        artist.id,
+        artist.is_following
+      );
     } catch (error) {
       console.error("Lỗi lấy artist details", error);
     }
@@ -191,13 +195,13 @@ class HomePage {
   // có thể sort riêng library nếu muốn mode = true
   async loadArtists(mode = false) {
     try {
-      const response = await ArtistService.getArtists(); // Lấy artists
+      const response = await ArtistService.getArtistsFollow(this.accessToken); // Lấy artists
 
       if (response.success) {
         //  nếu lấy thành công
         const data = response.data.artists; // Lấy data artists
+        //  data.forEach(d => await )
         let dataMyPlayList = [...data]; // Lưu trữ Data cùng nếu chưa có playList
-
         // Kiếm tra nếu đã đăng nhập
         if (this.user && this.accessToken) {
           const myPlayList = await PlayListService.getMyPlayList(
@@ -206,12 +210,13 @@ class HomePage {
           // Gắn dữ liệu đăng nhập có playlist vào
           dataMyPlayList = [...myPlayList.data.playlists, ...data];
         }
+        this.libraryFull = response.data.artistFull;
         this.library = data; // Gắn dữ liệu artist không có playList
         this.libraryDataMyPlayList = dataMyPlayList; // Gắn duex liệu có play list của bản thân
         this.renderLibrary(this.libraryDataMyPlayList); //  Render từ đầu có playlist
         if (!mode) {
           // Hỗ trợ tải lại hàm nếu không render HomeComponet
-          this.HomeComponent.render(data); // Render dữ liệu home
+          this.HomeComponent.render(this.libraryFull); // Render dữ liệu home
         }
       }
     } catch (error) {

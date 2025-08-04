@@ -6,17 +6,42 @@ class ArtistService {
     this.httpRequest = HttpRequest;
   }
 
-
   // /artists?limit=20&offset=0
-  async getArtists(limit = DEFAULT_LIMIT, offset = DEFAULT_OFFSET) {
+  async getArtists(
+    accessToken,
+    limit = DEFAULT_LIMIT,
+    offset = DEFAULT_OFFSET
+  ) {
     return await this.httpRequest.get(
+      `/artists?limit=${limit}&offset=${offset}`,
+      accessToken
+    );
+  }
+
+  async getArtistsFollow(
+    accessToken,
+    limit = DEFAULT_LIMIT,
+    offset = DEFAULT_OFFSET
+  ) {
+    const response = await this.httpRequest.get(
       `/artists?limit=${limit}&offset=${offset}`
     );
+
+    const data = response.data.artists;
+    let dataFollow = [];
+    for (const item of data) {
+      let artist = await this.getArtistById(item.id, accessToken);
+      if (artist.data.is_following) {
+        dataFollow.push(artist.data);
+      }
+    }
+
+    return { success: true, data: { artists: dataFollow, artistFull: data } };
   }
 
   // Lấy thông tin chi tiết của 1 artist theo ID
   // /artists/:artistId
-  async getArtistById(id , accessToken = null) {
+  async getArtistById(id, accessToken = null) {
     return await this.httpRequest.get(`/artists/${id}`, accessToken);
   }
 
@@ -34,9 +59,9 @@ class ArtistService {
   }
 
   // Lấy đồng thời artist info và popular tracks
-  async getArtistDetails(id , accessToken) {
+  async getArtistDetails(id, accessToken) {
     const [artistRes, albumsRes] = await Promise.all([
-      this.getArtistById(id , accessToken),
+      this.getArtistById(id, accessToken),
       this.getArtistPopularTracks(id),
     ]);
 

@@ -3,6 +3,7 @@ import { createElement, removeActiveClass } from "../../utils/helpers.js";
 class LibraryItem {
   constructor(onArtistSelect) {
     this.onArtistSelect = onArtistSelect;
+    this.libraryContent = document.querySelector(".library-content"); // Lấy content của nav
   }
 
   createLibraryItem(
@@ -10,12 +11,14 @@ class LibraryItem {
     title,
     imageUrl,
     modePlayList = false,
+    modeArtist = false,
     isActive = false
   ) {
     const container = createElement("div", {
       className: `library-item ${modePlayList ? "play-liked" : ""}`,
     });
 
+    container.id = id;
     container.onclick = (e) => {
       removeActiveClass(".library-item");
       this.onArtistSelect(id);
@@ -77,6 +80,10 @@ class LibraryItem {
 
     if (isActive) {
       container.classList.add("active");
+    }
+
+    if (modeArtist) {
+      this.libraryContent.appendChild(container);
     }
 
     return container;

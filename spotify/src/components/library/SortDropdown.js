@@ -82,7 +82,7 @@ class SortDropdown {
       });
 
       viewBtn.addEventListener("click", () => {
-        this.selectView(btn.type, viewBtn);
+        this.selectView(btn, viewBtn);
       });
 
       viewOptions.appendChild(viewBtn);
@@ -141,6 +141,7 @@ class SortDropdown {
     items[selectedIndex].classList.add("active");
 
     this.currentSort = option.label;
+    this.iconSort = option.icon;
     this.updateButtonText();
 
     this.closeDropdown();
@@ -159,9 +160,10 @@ class SortDropdown {
 
     buttonElement.classList.add("active");
 
+    this.sortBtn.querySelector("i").className = viewType.icon;
     document.dispatchEvent(
       new CustomEvent("viewChanged", {
-        detail: { viewType },
+        detail: { viewType: viewType.type },
       })
     );
   }

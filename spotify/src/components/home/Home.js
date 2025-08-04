@@ -10,13 +10,16 @@ class Home {
     this.contentWrapper = document.querySelector(".content-wrapper");
     this.contentComponent = new ArtistHero(this.contentWrapper);
     this.playListComponent = new Playlist(this.contentWrapper);
+    this.accessToken = localStorage.getItem("accessToken");
   }
   // Chi tiết click Artists ở home
   async handleArtistHome(id) {
     try {
-      const { artist, tracks } = await ArtistService.getArtistDetails(id);
-      console.log(artist, tracks);
-      this.contentComponent.render(artist, tracks);
+      const { artist, tracks } = await ArtistService.getArtistDetails(
+        id,
+        this.accessToken
+      );
+      this.contentComponent.render(artist, tracks, id, artist.is_following);
     } catch (error) {
       console.error("Lỗi lấy artist details", error);
     }
