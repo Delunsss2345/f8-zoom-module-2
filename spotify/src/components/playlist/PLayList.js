@@ -1,11 +1,38 @@
+import PlayListService from "../../services/api/PlayListService.js";
 import { createElement } from "../../utils/helpers.js";
 
 class Playlist {
   constructor(container) {
     this.container = container;
+    this.accessToken = localStorage.getItem("accessToken");
+    this.init();
   }
 
-  createPlaylistPage(imageUrl, playlistName) {
+  init() {
+    this.setUpFollowing();
+  }
+  // Hàm khởi tạo danh sách đã follow
+  async setUpFollowing() {
+    const response = await PlayListService.getAllPlayListFollow(
+      this.accessToken
+    );
+    this.playListFollowing = response.data.playlists;
+  }
+
+  // Hàm để theo dõi chi tiết
+  async handlerFollow(e, id) {
+    if (e.target.classList.contains("following")) {
+      e.target.textContent = "Theo dõi";
+      await PlayListService.unfollowPlaylist(this.accessToken, id);
+    } else {
+      e.target.textContent = "Đang theo dõi";
+      await PlayListService.followPlaylist(this.accessToken, id);
+    }
+    e.target.classList.toggle("following");
+    // Khởi tạo lại hàm đã follow
+    this.setUpFollowing();
+  }
+  createPlaylistPage(imageUrl, playlistName, id = null) {
     // Xóa nội dung cũ trong container
     this.container.innerHTML = "";
 
@@ -25,36 +52,11 @@ class Playlist {
     // Container cho ảnh playlist nằm dưới góc trái
     const playlistImageContainer = createElement("div", {
       className: "playlist-image-container",
-      attributes: {
-        style: `
-          position: absolute;
-          left: 24px;
-          bottom: 24px;
-          width: 232px;
-          height: 232px;
-          z-index: 3;
-        `,
-      },
     });
 
     // Ảnh playlist được thể hiện bằng div có icon trái tim ở giữa
     const img = createElement("div", {
-      className: "hero-image playlist-cover",
-      attributes: {
-        style: `
-          width: 232px;
-          height: 232px;
-          background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: 0 8px 60px rgba(0, 0, 0, 0.5);
-          font-size: 80px;
-          color: white;
-          font-weight: 300;
-        `,
-      },
+      className: "hero-image playlist-cover play-list-image-detail",
     });
 
     // Icon trái tim ở giữa ảnh
@@ -67,15 +69,7 @@ class Playlist {
 
     // Tạo lớp overlay mờ phía trên background
     const overlay = createElement("div", {
-      className: "hero-overlay",
-      attributes: {
-        style: `
-          background: linear-gradient(180deg, 
-            rgba(139, 92, 246, 0.3) 0%, 
-            rgba(59, 130, 246, 0.2) 30%, 
-            rgba(0, 0, 0, 0.6) 100%);
-        `,
-      },
+      className: "hero-overlay play-list-detail-overlay",
     });
 
     // Gắn overlay và ảnh vào background
@@ -84,53 +78,24 @@ class Playlist {
 
     // Nội dung phần hero: tiêu đề và label
     const heroContent = createElement("div", {
-      className: "hero-content",
-      attributes: {
-        style: `
-          position: absolute;
-          bottom: 24px;
-          left: 280px;
-          z-index: 3;
-        `,
-      },
+      className: "hero-content play-list-detail_heading",
     });
 
     // Nhãn "Playlist"
     const playlistLabel = createElement("span", {
       className: "playlist-label",
       textContent: "Playlist",
-      attributes: {
-        style: `
-          display: block;
-          font-size: 14px;
-          font-weight: 500;
-          margin-bottom: 8px;
-          color: white;
-          opacity: 0.8;
-        `,
-      },
     });
 
     // Tên playlist
     const name = createElement("h1", {
-      className: "artist-name",
+      className: "play-list-detail_name ",
       textContent: playlistName,
-      attributes: {
-        style: `
-          font-size: 96px;
-          font-weight: 900;
-          color: white;
-          margin: 0;
-          line-height: 1;
-          letter-spacing: -0.025em;
-          text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        `,
-      },
     });
 
     // Gắn label và tên vào hero content
-    heroContent.appendChild(playlistLabel);
     heroContent.appendChild(name);
+    heroContent.appendChild(playlistLabel);
 
     // Gắn background và content vào hero
     artistHero.appendChild(heroBackground);
@@ -141,11 +106,29 @@ class Playlist {
       className: "artist-controls",
     });
 
+    const followBtn = createElement("button", {
+      className: "follow-btn",
+      textContent: "Theo dõi",
+    });
+    if (id) {
+      this.playListFollowing.forEach((el) => {
+        if (el.id === id) {
+          followBtn.classList.add("following");
+          followBtn.textContent = "Đang theo dõi";
+        }
+      });
+    }
+
+    followBtn.onclick = (e) => {
+      this.handlerFollow(e, id);
+    };
+
     // Nút Play
     const playBtn = createElement("button", { className: "play-btn-large" });
     const playIcon = createElement("i", { className: "fas fa-play" });
     playBtn.appendChild(playIcon);
     artistControls.appendChild(playBtn);
+    artistControls.appendChild(followBtn);
 
     // Section sẽ hiển thị danh sách bài hát phổ biến trong playlist
     const popularSection = createElement("section", {

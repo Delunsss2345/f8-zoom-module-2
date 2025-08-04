@@ -106,9 +106,13 @@ class HttpRequest {
     }
   }
 
-  async del(path, body = null) {
+  async del(path, body, accessToken) {
     try {
-      const data = await this._fetchApi(path, "DELETE", body);
+      const data = await this._fetchApi(path, "DELETE", body, accessToken);
+      console.log(data);
+      if (!data.success && data.errorBody) {
+        return data;
+      }
       return { success: true, data };
     } catch (err) {
       console.error(err.message);

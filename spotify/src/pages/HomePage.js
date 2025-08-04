@@ -7,6 +7,7 @@ import LibraryItem from "../components/library/LibraryItem.js";
 import SortDropdown from "../components/library/SortDropdown.js";
 import Playlist from "../components/playlist/PLayList.js";
 import PlaylistEdit from "../components/playlist/PlayListEdit.js";
+import Tooltip from "../components/tooltip/Tooltip.js";
 import ArtistService from "../services/api/ArtistService.js";
 import PlayListService from "../services/api/PlayListService.js";
 import TrackService from "../services/api/TrackService.js";
@@ -16,6 +17,7 @@ import { removeActiveClass } from "../utils/helpers.js";
 class HomePage {
   constructor() {
     this.library = [];
+    this.tooltipComponent = new Tooltip(); // Component tooltip
     this.libraryContent = document.querySelector(".library-content"); // Lấy content của nav
     this.contentWrapper = document.querySelector(".content-wrapper"); // Lấy lớp bọc
     this.headerAction = document.querySelector(".header-actions"); // Lấy header chứa login user
@@ -42,7 +44,9 @@ class HomePage {
   }
 
   async init() {
+    this.tooltipComponent.render(); //Load tool tip
     await this.loadArtists(); // Load danh sách arstist
+    await this.loadAllPlayList();
     await this.loadPopularTracks(); // Load danh sách nhạc phổ biến
     this.setUpEvent(); // Set event
   }
@@ -72,6 +76,7 @@ class HomePage {
       removeActiveClass(".library-item");
       this.contentWrapper.innerHTML = "";
       this.HomeComponent.render(this.library);
+      this.HomeComponent.render(this.playlists, "Các playList", "playlist");
       this.HomeComponent.render(
         this.popularTracks,
         "Nhạc phổ biến hiện nay",
@@ -198,6 +203,22 @@ class HomePage {
       }
     } catch (error) {
       console.error("Lỗi lấy artists", error);
+    }
+  }
+
+  // Load tất cả playlist dùng chung
+  async loadAllPlayList() {
+    try {
+      const response = await PlayListService.getAllPlayList();
+
+      if (response.success) {
+        const data = response.data.playlists;
+        this.playlists = data;
+
+        this.HomeComponent.render(this.playlists, "Các playList", "playlist");
+      }
+    } catch (error) {
+      console.error("Lỗi lấy Playlist", error);
     }
   }
 

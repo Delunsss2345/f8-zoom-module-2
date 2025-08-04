@@ -14,6 +14,12 @@
     <link rel="stylesheet" href="src/assets/css/components.css" />
     <link rel="stylesheet" href="src/assets/css/layout.css" />
     <link rel="stylesheet" href="src/assets/css/responsive.css" />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/toastyjs/dist/toasty.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/toastyjs"></script>
   </head>
   <body>
     <div class="app-container">
@@ -118,29 +124,6 @@
         </div>
 
         <div class="player-center">
-          <div class="player-controls">
-            <button class="control-btn random-btn tooltip">
-              <i class="fas fa-random"></i>
-              <span class="tooltip-text">Phát ngẫu nhiên</span>
-            </button>
-
-            <button class="control-btn prev-btn tooltip">
-              <i class="fas fa-step-backward"></i>
-              <span class="tooltip-text">Trước</span>
-            </button>
-            <button class="control-btn play-btn tooltip">
-              <i class="fas fa-play"></i>
-              <span class="tooltip-text">Phát</span>
-            </button>
-            <button class="control-btn next-btn tooltip">
-              <i class="fas fa-step-forward"></i>
-              <span class="tooltip-text">Tiếp</span>
-            </button>
-            <button class="control-btn return-btn tooltip">
-              <i class="fas fa-redo"></i>
-              <span class="tooltip-text">Lặp lại</span>
-            </button>
-          </div>
           <div class="progress-container">
             <span class="time">0:52</span>
             <div class="progress-bar">
@@ -151,23 +134,7 @@
           </div>
         </div>
 
-        <div class="player-right">
-          <button class="control-btn">
-            <i class="fas fa-microphone"></i>
-          </button>
-          <div class="volume-container">
-            <button class="control-btn">
-              <i class="fas fa-volume-down"></i>
-            </button>
-            <div class="volume-bar">
-              <div class="volume-fill" style="width: 70%"></div>
-              <div class="volume-handle"></div>
-            </div>
-          </div>
-          <button class="control-btn">
-            <i class="fas fa-expand"></i>
-          </button>
-        </div>
+        <div class="player-right"></div>
       </footer>
     </div>
 

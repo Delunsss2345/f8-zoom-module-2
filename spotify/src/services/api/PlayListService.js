@@ -1,8 +1,23 @@
+import { DEFAULT_LIMIT, DEFAULT_OFFSET } from "../../utils/constants.js";
 import HttpRequest from "./HttpRequest.js";
 
 class PlayListService {
   constructor() {
     this.httpRequest = HttpRequest;
+  }
+
+  //Get playlist following
+   async getAllPlayListFollow(accessToken) {
+    return await this.httpRequest.get(
+      `/me/playlists/followed` , accessToken
+    );
+  }
+
+  ///playlists?limit=20&offset=0
+  async getAllPlayList(limit = DEFAULT_LIMIT, offset = DEFAULT_OFFSET) {
+    return await this.httpRequest.get(
+      `/playlists?limit=${limit}&offset=${offset}`
+    );
   }
 
   // getPlayList auth
@@ -31,6 +46,7 @@ class PlayListService {
     };
     return await this.httpRequest.post(`/playlists`, data, accessToken);
   }
+
   async uploadPlayList(accessToken, data) {
     console.log(accessToken, data);
     if (!accessToken) {
@@ -52,6 +68,36 @@ class PlayListService {
 
     return response;
   }
+
+  //Follow playlist
+  async followPlaylist(accessToken, playlistId) {
+    if (!accessToken) {
+      return;
+    }
+    const response = await this.httpRequest.post(
+      `/playlists/${playlistId}/follow`,
+      null,
+      accessToken
+    );
+
+    return response;
+  }
+
+  //Unfollow playlist
+  async unfollowPlaylist(accessToken, playlistId) {
+    if (!accessToken) {
+      return;
+    }
+
+    const response = await this.httpRequest.del(
+      `/playlists/${playlistId}/follow`,
+      null,
+      accessToken
+    );
+
+    return response;
+  }
+
 }
 
 export default new PlayListService();
