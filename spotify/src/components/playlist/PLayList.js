@@ -5,11 +5,14 @@ class Playlist {
   constructor(container) {
     this.container = container;
     this.accessToken = localStorage.getItem("accessToken");
+
     this.init();
   }
 
-  init() {
+  async init() {
     this.setUpFollowing();
+    const response = await PlayListService.getMyPlayList(this.accessToken);
+    this.myPlayList = response.data.playlists.map((playlist) => playlist.id);
   }
   // Hàm khởi tạo danh sách đã follow
   async setUpFollowing() {
@@ -55,15 +58,30 @@ class Playlist {
     });
 
     // Ảnh playlist được thể hiện bằng div có icon trái tim ở giữa
-    const img = createElement("div", {
-      className: "hero-image playlist-cover play-list-image-detail",
-    });
+    let img;
 
-    // Icon trái tim ở giữa ảnh
-    const icon = createElement("i", {
-      className: "fas fa-heart",
-    });
-    img.appendChild(icon);
+    let image;
+    if (!imageUrl || imageUrl === "https://example.com/playlist-cover.jpg") {
+      img = createElement("div", {
+        className: "hero-image playlist-cover play-list-image-detail",
+      });
+      const icon = createElement("i", {
+        className: "fas fa-heart",
+      });
+      img.appendChild(icon);
+    } else {
+      img = createElement("figure", {
+        className: "playlist-cover play-list-image-detail",
+      });
+      image = createElement("img", {
+        className: "play-list-image-cover",
+        attributes: {
+          src: imageUrl,
+          alt: playlistName,
+        },
+      });
+      img.appendChild(image);
+    }
 
     playlistImageContainer.appendChild(img);
 
@@ -106,29 +124,32 @@ class Playlist {
       className: "artist-controls",
     });
 
-    const followBtn = createElement("button", {
-      className: "follow-btn",
-      textContent: "Theo dõi",
-    });
-    if (id) {
-      this.playListFollowing.forEach((el) => {
-        if (el.id === id) {
-          followBtn.classList.add("following");
-          followBtn.textContent = "Đang theo dõi";
-        }
-      });
-    }
-
-    followBtn.onclick = (e) => {
-      this.handlerFollow(e, id);
-    };
-
     // Nút Play
     const playBtn = createElement("button", { className: "play-btn-large" });
     const playIcon = createElement("i", { className: "fas fa-play" });
     playBtn.appendChild(playIcon);
     artistControls.appendChild(playBtn);
-    artistControls.appendChild(followBtn);
+
+    if (!this.myPlayList.includes(id)) {
+      const followBtn = createElement("button", {
+        className: "follow-btn",
+        textContent: "Theo dõi",
+      });
+      if (id) {
+        this.playListFollowing.forEach((el) => {
+          if (el.id === id) {
+            followBtn.classList.add("following");
+            followBtn.textContent = "Đang theo dõi";
+          }
+        });
+      }
+
+      followBtn.onclick = (e) => {
+        this.handlerFollow(e, id);
+      };
+
+      artistControls.appendChild(followBtn);
+    }
 
     // Section sẽ hiển thị danh sách bài hát phổ biến trong playlist
     const popularSection = createElement("section", {

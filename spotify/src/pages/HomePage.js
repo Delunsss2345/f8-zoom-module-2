@@ -76,7 +76,11 @@ class HomePage {
       removeActiveClass(".library-item");
       this.contentWrapper.innerHTML = "";
       this.HomeComponent.render(this.library);
-      this.HomeComponent.render(this.playlists, "Các playList", "playlist");
+      this.HomeComponent.render(
+        this.playlists,
+        "Các playLists công khai",
+        "playlist"
+      );
       this.HomeComponent.render(
         this.popularTracks,
         "Nhạc phổ biến hiện nay",
@@ -106,7 +110,6 @@ class HomePage {
     inputSearch.addEventListener("input", (e) => {
       clearTimeout(debounceTimer); // Clean time out cũ mỗi khi input lại
       debounceTimer = setTimeout(() => {
-        console.log(e.target.value);
         this.renderLibrary(this.library, undefined, e.target.value); // Render lại thư viện bên nav
       }, 800); // set độ trể của tìm kiếm 800ms
     });
@@ -165,11 +168,21 @@ class HomePage {
       const playList = await PlayListService.getPlayListById(id);
       if (playList.success) {
         const data = playList.data;
-        this.playListComponent.createPlaylistPage(data.image_url, data.name);
+        this.playListComponent.createPlaylistPage(
+          data.image_url,
+          data.name,
+          data.id
+        );
         return;
       }
-      const { artist, tracks } = await ArtistService.getArtistDetails(id);
-      this.contentComponent.render(artist, tracks);
+
+      const { artist, tracks } = await ArtistService.getArtistDetails(
+        id,
+        this.accessToken
+      );
+      console.log(artist);
+
+      this.contentComponent.render(artist, tracks, artist.id, artist.is_following);
     } catch (error) {
       console.error("Lỗi lấy artist details", error);
     }
@@ -194,7 +207,7 @@ class HomePage {
           dataMyPlayList = [...myPlayList.data.playlists, ...data];
         }
         this.library = data; // Gắn dữ liệu artist không có playList
-        this.libraryDataMyPlayList = dataMyPlayList; // Gắn duex liệu có play list
+        this.libraryDataMyPlayList = dataMyPlayList; // Gắn duex liệu có play list của bản thân
         this.renderLibrary(this.libraryDataMyPlayList); //  Render từ đầu có playlist
         if (!mode) {
           // Hỗ trợ tải lại hàm nếu không render HomeComponet
@@ -213,9 +226,19 @@ class HomePage {
 
       if (response.success) {
         const data = response.data.playlists;
-        this.playlists = data;
 
-        this.HomeComponent.render(this.playlists, "Các playList", "playlist");
+        this.libraryDataMyPlayList; // hàm loadArist chạy sau nên sẽ có dữ liệu trước vì thế ta sẽ tiến hành lọc ra playlist của bản thân
+        const myPlaylistIds = this.libraryDataMyPlayList.map((pl) => pl.id);
+
+        this.playlists = data.filter(
+          (dataPl) => !myPlaylistIds.includes(dataPl.id)
+        );
+
+        this.HomeComponent.render(
+          this.playlists,
+          "Các playLists công khai",
+          "playlist"
+        );
       }
     } catch (error) {
       console.error("Lỗi lấy Playlist", error);

@@ -1,3 +1,4 @@
+import UploadService from "../../services/api/UploadService.js";
 import { createElement } from "../../utils/helpers.js";
 
 class ModelEditPlayList {
@@ -12,17 +13,19 @@ class ModelEditPlayList {
     this.onCancel = null;
     this.modal = null;
     this.reloadLibraryComponent = null;
+    this.accessToken = localStorage.getItem("accessToken");
   }
 
   render(options = {}) {
     const {
-      playlistName = "My Playlist #3", // Tên playlist mặc định
+      playlistId = null,
+      playlistName = "My Playlist", // Tên playlist mặc định
       playlistDescription = "", // Mô tả playlist mặc định
       playlistImage = null, // Ảnh playlist mặc định
       onSave = null,
       onCancel = null,
     } = options;
-
+    this.playlistId = playlistId;
     // Lưu lại callback để gọi sau khi người dùng thao tác
     this.onSave = onSave;
     this.onCancel = onCancel;
@@ -317,12 +320,11 @@ class ModelEditPlayList {
     // Danh sách các định dạng ảnh hợp lệ
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     if (!validTypes.includes(file.type)) {
-      alert("Please select a valid image file (JPEG, PNG, WebP)");
       return;
     }
 
     const reader = new FileReader(); // Tạo đối tượng đọc file
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       // Khi đọc file xong, tiến hành hiển thị ảnh
       const imagePreview = this.modal.querySelector("#editImagePreview"); // Thẻ chứa ảnh preview
       if (imagePreview) {
@@ -352,6 +354,7 @@ class ModelEditPlayList {
 
       // Lưu đường dẫn ảnh vào dữ liệu playlist
       this.playlistData.image = e.target.result;
+      
     };
 
     // Đọc file thành dạng URL base64 để hiển thị ảnh
@@ -371,7 +374,6 @@ class ModelEditPlayList {
     const name = nameInput.value.trim(); // Lấy giá trị tên và loại bỏ khoảng trắng thừa
     if (!name) {
       // Nếu tên bị bỏ trống, cảnh báo và focus lại vào input
-      alert("Playlist name is required");
       nameInput.focus();
       return;
     }
@@ -387,7 +389,7 @@ class ModelEditPlayList {
     if (this.onSave && typeof this.onSave === "function") {
       this.onSave(updatedData); // Truyền dữ liệu cập nhật vào
     }
-
+    
     this.close(); // Đóng modal sau khi lưu
   }
 

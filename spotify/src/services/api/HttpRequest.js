@@ -56,7 +56,6 @@ class HttpRequest {
       }
       return { success: true, data };
     } catch (err) {
-      console.error(err.message);
       return { success: false, error: err.message };
     }
   }
@@ -73,7 +72,6 @@ class HttpRequest {
 
       return { success: true, data };
     } catch (err) {
-      console.error(err.message);
       return { success: false, error: err.message };
     }
   }
@@ -88,7 +86,6 @@ class HttpRequest {
       }
       return { success: true, data };
     } catch (err) {
-      console.error(err.message);
       return { success: false, error: err.message };
     }
   }
@@ -101,7 +98,6 @@ class HttpRequest {
       }
       return { success: true, data };
     } catch (err) {
-      console.error(err.message);
       return { success: false, error: err.message };
     }
   }
@@ -115,7 +111,6 @@ class HttpRequest {
       }
       return { success: true, data };
     } catch (err) {
-      console.error(err.message);
       return { success: false, error: err.message };
     }
   }

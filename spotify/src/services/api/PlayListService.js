@@ -1,5 +1,6 @@
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from "../../utils/constants.js";
 import HttpRequest from "./HttpRequest.js";
+import UploadService from "./UploadService.js";
 
 class PlayListService {
   constructor() {
@@ -7,10 +8,8 @@ class PlayListService {
   }
 
   //Get playlist following
-   async getAllPlayListFollow(accessToken) {
-    return await this.httpRequest.get(
-      `/me/playlists/followed` , accessToken
-    );
+  async getAllPlayListFollow(accessToken) {
+    return await this.httpRequest.get(`/me/playlists/followed`, accessToken);
   }
 
   ///playlists?limit=20&offset=0
@@ -48,18 +47,27 @@ class PlayListService {
   }
 
   async uploadPlayList(accessToken, data) {
-    console.log(accessToken, data);
     if (!accessToken) {
       return;
     }
     const playListId = data.id;
+    let img_url;
+    if (data.image) {
+      img_url = await UploadService.uploadImagePLayList(
+        accessToken,
+        playListId,
+        data.image
+      );
+
+      console.log(img_url) ; 
+    }
     const playListEdit = {
       name: data.name,
       description: data.description,
       is_public: true,
+      image_url: img_url,
     };
 
-    console.log({ playListEdit, playListId });
     const response = await this.httpRequest.put(
       `/playlists/${playListId}`,
       playListEdit,
@@ -97,7 +105,6 @@ class PlayListService {
 
     return response;
   }
-
 }
 
 export default new PlayListService();

@@ -140,7 +140,7 @@ class PlaylistEdit {
           const playList = this.libraryItemComponent.createLibraryItem(
             newPlayList.id,
             newPlayList.name,
-            null,
+            newPlayList.image_url,
             true
           );
           this.libraryContent.prepend(playList);

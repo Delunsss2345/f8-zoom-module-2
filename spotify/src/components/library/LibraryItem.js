@@ -22,7 +22,7 @@ class LibraryItem {
       e.currentTarget.classList.add("active");
     };
     let img;
-    if (modePlayList) {
+    if (!imageUrl || imageUrl === "https://example.com/playlist-cover.jpg") {
       img = createElement("div", {
         className: "item-icon liked-songs",
       });

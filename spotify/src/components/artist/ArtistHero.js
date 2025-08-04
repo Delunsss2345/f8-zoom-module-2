@@ -1,3 +1,4 @@
+import ArtistService from "../../services/api/ArtistService.js";
 import { formatNumber } from "../../utils/formatters.js";
 import { createElement } from "../../utils/helpers.js";
 import TrackList from "./TrackList.js";
@@ -8,8 +9,29 @@ class ArtistHero {
     this.audio = document.getElementById("audioPlay");
     this.process = document.querySelector(".progress-fill");
     this.container = container;
+    this.accessToken = localStorage.getItem("accessToken");
   }
-  createArtistPage(imageUrl, artistName, monthlyListeners) {
+
+  // Hàm để theo dõi
+  async handlerFollow(e, id) {
+    console.log(id);
+    if (e.target.classList.contains("following")) {
+      e.target.textContent = "Theo dõi";
+      await ArtistService.unfollowArtist(this.accessToken, id);
+    } else {
+      e.target.textContent = "Đang theo dõi";
+      await ArtistService.followArtist(this.accessToken, id);
+    }
+    e.target.classList.toggle("following");
+  }
+
+  createArtistPage(
+    imageUrl,
+    artistName,
+    monthlyListeners,
+    id = null,
+    isFollowing = false
+  ) {
     const contentWrapper = createElement("div", {
       className: "content-wrapper",
     });
@@ -65,6 +87,18 @@ class ArtistHero {
       className: "follow-btn",
       textContent: "Theo dõi",
     });
+    if (isFollowing) {
+      followBtn.classList.add("following");
+      followBtn.textContent = "Đang theo dõi";
+    }
+
+    if (id) {
+      followBtn.onclick = (e) => {
+        this.handlerFollow(e, id);
+      };
+    }
+
+    artistControls.appendChild(followBtn);
 
     playBtn.appendChild(playIcon);
     artistControls.appendChild(playBtn);
@@ -89,12 +123,17 @@ class ArtistHero {
     return contentWrapper;
   }
 
-  render(artistData, tracks) {
+  render(artistData, tracks, id, isFollowing = false) {
     const { background_image_url, name, monthly_listeners } = artistData;
-    console.log({ background_image_url, name, monthly_listeners });
     this.container.innerHTML = "";
     this.container.appendChild(
-      this.createArtistPage(background_image_url, name, monthly_listeners)
+      this.createArtistPage(
+        background_image_url,
+        name,
+        monthly_listeners,
+        id,
+        isFollowing
+      )
     );
     this.trackList = document.querySelector(".track-list");
     this.trackListComponent = new TrackList(

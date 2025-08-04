@@ -74,15 +74,15 @@ class TrackList {
       this.progress.value = percent || 0;
     };
 
-    this.progress.onmousedown = () => {
-      this.progress.seeking = true;
-    };
+    // this.progress.onmousedown = () => {
+    //   this.progress.seeking = true;
+    // };
 
-    this.progress.onmouseup = () => {
-      const percent = +this.progress.value;
-      this.audio.currentTime = (this.audio.duration / 100) * percent;
-      this.progress.seeking = false;
-    };
+    // this.progress.onmouseup = () => {
+    //   const percent = +this.progress.value;
+    //   this.audio.currentTime = (this.audio.duration / 100) * percent;
+    //   this.progress.seeking = false;
+    // };
 
     this.audio.onended = () => {
       if (this.isRepeat) {

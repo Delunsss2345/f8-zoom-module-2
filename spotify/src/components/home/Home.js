@@ -28,7 +28,7 @@ class Home {
       const playlist = response.data;
       this.playListComponent.createPlaylistPage(
         playlist.image_url,
-        playlist.name , 
+        playlist.name,
         playlist.id
       );
     } catch (error) {
@@ -61,13 +61,15 @@ class Home {
     // Duyệt qua từng phần tử trong mảng
     let img;
     data.forEach((item) => {
+      // Mode Playlist
       if (mode === "playlist") {
+        // Nếu không có image hoặc bằng img mắc định
         if (
           !item.image_url ||
           item.image_url === "https://example.com/playlist-cover.jpg"
         ) {
           img = createElement("div", {
-            className: "album-img playlist-cover play-list-image ",
+            className: "album-img playlist-cover play-list-image",
           });
 
           // Icon trái tim ở giữa ảnh
@@ -75,9 +77,20 @@ class Home {
             className: "fas fa-heart",
           });
           img.appendChild(icon);
+          // nếu khác thì có ảnh
+        } else {
+          // Lấy playlist giống ablum
+          img = createElement("img", {
+            className: mode === "artist" ? "artist-img" : "album-img",
+            attributes: {
+              src: item.image_url,
+              alt: mode === "artist" ? item.name : item.artist_name,
+            },
+          });
         }
       } else {
-        // Tạo ảnh đại diện của artist hoặc album, hoặc playlist
+        // Khác mode
+        // Tạo ảnh đại diện của artist hoặc album
         img = createElement("img", {
           className: mode === "artist" ? "artist-img" : "album-img",
           attributes: {
