@@ -1,11 +1,15 @@
 import PlayListService from "../../services/api/PlayListService.js";
 import { createElement } from "../../utils/helpers.js";
+import LibraryItem from "../library/LibraryItem.js";
 
 class Playlist {
   constructor(container) {
     this.container = container;
     this.accessToken = localStorage.getItem("accessToken");
-
+    this.libraryItemComponent = new LibraryItem((id) => {
+      this.artistId = id;
+      this.handlePlaylist(id);
+    });
     this.init();
   }
 
@@ -30,11 +34,36 @@ class Playlist {
     } else {
       e.target.textContent = "Đang theo dõi";
       await PlayListService.followPlaylist(this.accessToken, id);
+      const response = await PlayListService.getPlayListById(id);
+      const playlist = response.data;
+      console.log(playlist);
+      this.libraryItemComponent.createLibraryItem(
+        playlist.id,
+        playlist.name,
+        playlist.image_url,
+        true
+      );
     }
     e.target.classList.toggle("following");
     // Khởi tạo lại hàm đã follow
     this.setUpFollowing();
   }
+
+  async handlePlaylist(id) {
+    try {
+      const response = await PlayListService.getPlayListById(id);
+      console.log(response);
+      // this.contentComponent.render(
+      //   response.data.playlist,
+      //   tracks,
+      //   artist.id,
+      //   artist.is_following
+      // );
+    } catch (error) {
+      console.error("Lỗi lấy artist details", error);
+    }
+  }
+
   createPlaylistPage(imageUrl, playlistName, id = null) {
     // Xóa nội dung cũ trong container
     this.container.innerHTML = "";

@@ -40,7 +40,9 @@ class AuthButton {
       avatarBtn.id = "userAvatar";
 
       const avatarImg = document.createElement("img");
-      avatarImg.src = this.userAvatar;
+      avatarImg.src =
+        "https://www.shutterstock.com/image-vector/default-avatar-profile-icon-social-600nw-1677509740.jpg" ||
+        this.userAvatar;
       avatarImg.alt = "User Avatar";
 
       avatarBtn.appendChild(avatarImg);

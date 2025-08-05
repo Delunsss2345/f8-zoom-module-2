@@ -18,7 +18,7 @@ class LibraryItem {
       className: `library-item ${modePlayList ? "play-liked" : ""}`,
     });
 
-    container.id = id;
+    container.dataset.id = id;
     container.onclick = (e) => {
       removeActiveClass(".library-item");
       this.onArtistSelect(id);

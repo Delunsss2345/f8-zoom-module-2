@@ -11,6 +11,7 @@ import Tooltip from "../components/tooltip/Tooltip.js";
 import ArtistService from "../services/api/ArtistService.js";
 import PlayListService from "../services/api/PlayListService.js";
 import TrackService from "../services/api/TrackService.js";
+import UserService from "../services/api/UserService.js";
 import { MODAL_CLASSES } from "../utils/constants.js";
 import { removeActiveClass } from "../utils/helpers.js";
 
@@ -24,6 +25,7 @@ class HomePage {
     this.authBtn = document.querySelector(".auth-buttons"); // Lấy nút bấm
     this.sortDropdown = new SortDropdown(); // Khởi tạo dropdown
     this.contextMenuComponent = new ContextMenu(); // Tạo context Menu
+    this.contextMenuComponent.init();
     this.contentComponent = new ArtistHero(this.contentWrapper); // Tạo đối tượng render content khi click
     this.playListComponent = new Playlist(this.contentWrapper); // Tạo đối tượng play list
     this.playListEditComponent = new PlaylistEdit(this.contentWrapper); // Tạo đối tượng edit play list
@@ -150,7 +152,6 @@ class HomePage {
     });
 
     // 2 hàm bắt sụ kiện thay đổi khung nhìn và sắp xếp
-
     document.addEventListener("sortChanged", (e) => {
       this.handleSortChange(e.detail);
     });
@@ -207,8 +208,15 @@ class HomePage {
           const myPlayList = await PlayListService.getMyPlayList(
             this.accessToken
           );
+          const followedPlayList = await UserService.getFollowing(
+            this.accessToken
+          );
           // Gắn dữ liệu đăng nhập có playlist vào
-          dataMyPlayList = [...myPlayList.data.playlists, ...data];
+          dataMyPlayList = [
+            ...myPlayList.data.playlists,
+            ...followedPlayList.data.playlists,
+            ...data,
+          ];
         }
         this.libraryFull = response.data.artistFull;
         this.library = data; // Gắn dữ liệu artist không có playList
@@ -328,7 +336,7 @@ class HomePage {
     libraries.forEach((library) => {
       let modePlayList;
       if (library) {
-        modePlayList = library.user_username; // Kiếm tra có user_name thì true truyền vào createItem để tạo
+        modePlayList = library.user_username || library.user_id; // Kiếm tra có user_name thì true truyền vào createItem để tạo
         // Libarary phù hợp với playlist
       }
       const libraryItem = this.libraryItemComponent.createLibraryItem(

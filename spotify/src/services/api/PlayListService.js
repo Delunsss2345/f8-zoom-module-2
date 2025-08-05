@@ -59,7 +59,7 @@ class PlayListService {
         data.image
       );
 
-      console.log(img_url) ; 
+      console.log(img_url);
     }
     const playListEdit = {
       name: data.name,
@@ -75,6 +75,10 @@ class PlayListService {
     );
 
     return response;
+  }
+
+  async delPlayList(accessToken, id) {
+    return await this.httpRequest.del(`/playlists/${id}`, null, accessToken);
   }
 
   //Follow playlist
