@@ -1,6 +1,6 @@
 import AuthService from "../../services/api/AuthService.js";
 import { KEYS, MODAL_CLASSES } from "../../utils/constants.js";
-import { toggleBodyScroll } from "../../utils/helpers.js";
+import { modalAnimationHelper, toggleBodyScroll } from "../../utils/helpers.js";
 import AuthButton from "./AuthButton.js";
 
 class AuthModal {
@@ -12,8 +12,8 @@ class AuthModal {
     this.modalClose = document.getElementById("modalClose");
     this.signupForm = document.getElementById("signupForm");
     this.loginForm = document.getElementById("loginForm");
-    this.showLoginBtn = document.getElementById("showLogin");
-    this.showSignupBtn = document.getElementById("showSignup");
+    this.showLoginBtn = document.querySelector(".auth-btn.login-btn");
+    this.showSignupBtn = document.querySelector(".auth-btn.signup-btn");
     this.modalContainer = document.querySelector(".modal-container");
     this.overLay = document.querySelector(".modal-overlay");
 
@@ -43,27 +43,6 @@ class AuthModal {
 
   init() {
     this.setUpEvent();
-  }
-
-  //  Setup animation cho modal
-  animationSetup(key) {
-    if (key === "open") {
-      this.overLay.style.animation = "fadeIn 0.2s ease";
-      this.modalContainer.style.animation = "modalSlideIn 0.2s ease";
-    } else if (key === "close") {
-      this.modalContainer.style.animation = "modalSlideOut 0.2s ease";
-      this.overLay.style.animation = "fadeOut 0.2s ease";
-
-      const handleAnimationEnd = () => {
-        this.modalContainer.removeEventListener(
-          "animationend",
-          handleAnimationEnd
-        );
-        this.overLay.style.animation = "";
-        this.closeModal();
-      };
-      this.modalContainer.addEventListener("animationend", handleAnimationEnd);
-    }
   }
 
   setUpEvent() {
@@ -97,7 +76,12 @@ class AuthModal {
         this.signupForm.querySelector(".auth-form-content").reset();
 
         // Đóng modal
-        this.animationSetup("close");
+        modalAnimationHelper(
+          "close",
+          this.modalContainer,
+          this.overLay,
+          this.closeModal.bind(this)
+        );
 
         // Render nút user đã đăng nhập
         this.authButtons = new AuthButton(this.headerAction, true);
@@ -126,7 +110,12 @@ class AuthModal {
         this.loginForm.querySelector(".auth-form-content").reset();
 
         // Đóng modal
-        this.animationSetup("close");
+        modalAnimationHelper(
+          "close",
+          this.modalContainer,
+          this.overLay,
+          this.closeModal.bind(this)
+        );
 
         // Render lại header với nút user đã login
         this.authButtons = new AuthButton(this.headerAction, true);
@@ -135,16 +124,26 @@ class AuthModal {
     };
 
     // Sự kiện click nút đóng modal
-    this.modalClose.addEventListener("click", (e) => {
-      this.animationSetup("close");
-    });
+    this.modalClose.onclick = (e) => {
+      modalAnimationHelper(
+        "close",
+        this.modalContainer,
+        this.overLay,
+        this.closeModal.bind(this)
+      );
+    };
 
     // Đóng modal khi click ra ngoài form (click vào nền mờ)
-    this.authModal.addEventListener("click", (e) => {
+    this.authModal.onclick = (e) => {
       if (e.target === this.authModal) {
-        this.animationSetup("close");
+        modalAnimationHelper(
+          "close",
+          this.modalContainer,
+          this.overLay,
+          this.closeModal.bind(this)
+        );
       }
-    });
+    };
 
     // Đóng modal khi bấm phím Escape
     document.addEventListener("keydown", (e) => {
@@ -152,25 +151,26 @@ class AuthModal {
         e.key === KEYS.ESCAPE &&
         this.authModal.classList.contains(MODAL_CLASSES.SHOW)
       ) {
-        this.animationSetup("close");
+        modalAnimationHelper(
+          "close",
+          this.modalContainer,
+          this.overLay,
+          this.closeModal.bind(this)
+        );
       }
     });
-
-    // Hiển thị form đăng nhập khi người dùng nhấn "Đăng nhập"
-    this.showLoginBtn.addEventListener("click", () => this.showLoginForm());
-
-    // Hiển thị form đăng ký khi người dùng nhấn "Đăng ký"
-    this.showSignupBtn.addEventListener("click", () => this.showSignupForm());
   }
 
   showSignupForm() {
-    this.animationSetup("open");
+    modalAnimationHelper("open", this.modalContainer, this.overLay);
+
     this.signupForm.style.display = "block";
     this.loginForm.style.display = "none";
   }
 
   showLoginForm() {
-    this.animationSetup("open");
+    modalAnimationHelper("open", this.modalContainer, this.overLay);
+
     this.loginForm.style.display = "block";
     this.signupForm.style.display = "none";
   }

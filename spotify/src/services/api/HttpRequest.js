@@ -32,7 +32,10 @@ class HttpRequest {
 
       const res = await fetch(api, options);
 
-      // Handle HTTP error status codes
+      if (res.status === 404) {
+        console.log("Not found (404)");
+      }
+
       if (!res.ok) {
         const errorBody = await res.json();
         return {
@@ -116,5 +119,4 @@ class HttpRequest {
   }
 }
 
-// Export singleton instance - chỉ có 1 instance duy nhất trong app
 export default new HttpRequest();

@@ -11,17 +11,22 @@ class ArtistHero {
     this.process = document.querySelector(".progress-fill");
     this.container = container;
     this.accessToken = localStorage.getItem("accessToken");
-    this.libraryItemComponent = new LibraryItem((id) => {
+    this.libraryItemSelect = null;
+
+    this.libraryItemComponent = new LibraryItem((id, libraryContent = null) => {
       this.artistId = id;
       this.handleArtistSelect(id);
     });
   }
 
+  set libraryItemSelected(item) {
+    this.libraryItemSelect = item;
+  }
   // Hàm để theo dõi
   async handlerFollow(e, id) {
     if (e.target.classList.contains("following")) {
+      document.querySelector(`.library-item[data-id="${id}"]`).remove();
       e.target.textContent = "Theo dõi";
-
       ArtistService.unfollowArtist(this.accessToken, id);
     } else {
       e.target.textContent = "Đang theo dõi";
@@ -30,6 +35,7 @@ class ArtistHero {
         ArtistService.getArtistById(id),
       ]);
       const artist = data[1].data;
+      // add vào library khi theo dõi
       this.libraryItemComponent.createLibraryItem(
         artist.id,
         artist.name,
@@ -38,6 +44,7 @@ class ArtistHero {
         true
       );
     }
+
     e.target.classList.toggle("following");
   }
 
@@ -48,12 +55,7 @@ class ArtistHero {
         this.accessToken
       );
 
-      this.contentComponent.render(
-        artist,
-        tracks,
-        artist.id,
-        artist.is_following
-      );
+      this.render(artist, tracks, artist.id, artist.is_following);
     } catch (error) {
       console.error("Lỗi lấy artist details", error);
     }

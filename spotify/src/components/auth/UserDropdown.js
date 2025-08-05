@@ -18,19 +18,19 @@ class UserDropdown {
   }
 
   setUpEvent() {
-    this.userAvatar.addEventListener("click", (e) => {
+    this.userAvatar.onclick = (e) => {
       e.stopPropagation();
       this.toggleDropdown();
-    });
+    };
 
-    document.addEventListener("click", (e) => {
+    document.onclick = (e) => {
       if (
         !this.userAvatar.contains(e.target) &&
         !this.userDropdown.contains(e.target)
       ) {
         this.closeDropdown();
       }
-    });
+    };
 
     document.addEventListener("keydown", (e) => {
       if (
@@ -41,9 +41,9 @@ class UserDropdown {
       }
     });
 
-    this.logoutBtn.addEventListener("click", () => {
+    this.logoutBtn.onclick = () => {
       this.handleLogout();
-    });
+    };
   }
 
   toggleDropdown() {

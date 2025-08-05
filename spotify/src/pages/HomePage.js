@@ -30,10 +30,17 @@ class HomePage {
     this.playListComponent = new Playlist(this.contentWrapper); // Tạo đối tượng play list
     this.playListEditComponent = new PlaylistEdit(this.contentWrapper); // Tạo đối tượng edit play list
     this.HomeComponent = new Home(this.contentWrapper, this.handleArtistHome); // Khởi tạo home để hộ trợ hiện aristi
-    this.libraryItemComponent = new LibraryItem((id) => {
+    this.libraryItemComponent = new LibraryItem((id, libraryContent = null) => {
       // Tạo đói tượng truyền hàm để hổ trợ mỗi library có 1 click
       this.artistId = id; // Gắn id artistId
       this.handleArtistSelect(id); // Gắn hàm ở HomePage vào
+      // if (this.libraryMe) {
+      //   this.libraryMe.push(libraryContent);
+      // } else {
+      //   this.libraryMe = [];
+      //   this.libraryMe.push(libraryContent);
+      // }
+      // console.log(this.libraryMe);
     });
     this.user = JSON.parse(localStorage.getItem("user")); // Get trước user lúc khởi tạo
     this.accessToken = localStorage.getItem("accessToken"); // Get trước accessToken
@@ -52,12 +59,26 @@ class HomePage {
     await this.loadPopularTracks(); // Load danh sách nhạc phổ biến
     this.setUpEvent(); // Set event
   }
+  renderHomePage(
+    libraryFull,
+    playlists,
+    popularTracks,
+    contentWrapper,
+    homeComponent
+  ) {
+    removeActiveClass(".library-item");
+    contentWrapper.innerHTML = "";
 
+    homeComponent.render(libraryFull);
+    homeComponent.render(playlists, "Các playLists công khai", "playlist");
+    homeComponent.render(popularTracks, "Nhạc phổ biến hiện nay", "album");
+  }
   setUpEvent() {
     const createBtn = document.querySelector(".create-btn"); // Lấy nút tạo play list
     const searchBtn = document.querySelector(".search-library-btn"); // lấy nút search để hỗ trợ search
     const inputSearch = document.querySelector(".search-library-input"); // lấy nút input để hỗ trợ nhập search
     const homeBtn = document.querySelector(".home-btn"); // Lấy nút home
+    const logoBtn = document.querySelector(".logo");
     const signupBtn = this.headerAction.querySelector(".signup-btn"); // Lấy nút đăng kí
     const loginBtn = this.headerAction.querySelector(".login-btn"); // Lấy nút login
     const nabs = document.querySelectorAll(".nav-tab"); // Lấy tất cả navtabs để chia arsitst và playlist
@@ -73,22 +94,25 @@ class HomePage {
       };
     }
 
-    // Click khởi tạo làm content , và tracks
-    homeBtn.addEventListener("click", () => {
-      removeActiveClass(".library-item");
-      this.contentWrapper.innerHTML = "";
-      this.HomeComponent.render(this.libraryFull);
-      this.HomeComponent.render(
+    homeBtn.onclick = () => {
+      this.renderHomePage(
+        this.libraryFull,
         this.playlists,
-        "Các playLists công khai",
-        "playlist"
-      );
-      this.HomeComponent.render(
         this.popularTracks,
-        "Nhạc phổ biến hiện nay",
-        "album"
+        this.contentWrapper,
+        this.HomeComponent
       );
-    });
+    };
+
+    logoBtn.onclick = () => {
+      this.renderHomePage(
+        this.libraryFull,
+        this.playlists,
+        this.popularTracks,
+        this.contentWrapper,
+        this.HomeComponent
+      );
+    };
 
     // Hàm lọc nghệ sĩ , và playlist
     nabs.forEach((nav) => {
@@ -96,7 +120,6 @@ class HomePage {
         removeActiveClass(".nav-tab");
         e.target.closest(".nav-tab").classList.add("active");
         const contentNav = nav.textContent;
-        console.log(contentNav);
         if (contentNav === "Artists") {
           this.loadArtistOld("Artist");
         } else {
@@ -112,7 +135,11 @@ class HomePage {
     inputSearch.addEventListener("input", (e) => {
       clearTimeout(debounceTimer); // Clean time out cũ mỗi khi input lại
       debounceTimer = setTimeout(() => {
-        this.renderLibrary(this.library, undefined, e.target.value); // Render lại thư viện bên nav
+        this.renderLibrary(
+          this.libraryDataMyPlayList,
+          undefined,
+          e.target.value
+        ); // Render lại thư viện bên nav
       }, 800); // set độ trể của tìm kiếm 800ms
     });
 
@@ -282,11 +309,11 @@ class HomePage {
   }
 
   // Hàm sort Arits
-  sortArtists(artists, sortBy) {
+  sortAll(allPlaylistAndArtist, sortBy) {
     // Không có gì trả
-    if (!sortBy || !sortBy.sortBy) return artists;
+    if (!sortBy || !sortBy.sortBy) return allPlaylistAndArtist;
 
-    const sorted = [...artists]; // Lấy mảng sorted
+    const sorted = [...allPlaylistAndArtist]; // Lấy mảng sorted
 
     // Kiếm tra detail sự kiện sortBy từ dispatch
     switch (sortBy.sortBy) {
@@ -324,12 +351,11 @@ class HomePage {
   // Tải thư viện có tích hợp sort (dùng để gọi lại mỗi lần sort)
   renderLibrary(libraries, sortBy, value) {
     if (sortBy) {
-      console.log(sortBy);
-      libraries = this.sortArtists(libraries, sortBy); // Có sortBy chứng tỏ đăng sort theo chữ
+      libraries = this.sortAll(libraries, sortBy); // Có sortBy chứng tỏ đăng sort theo chữ
     }
 
     if (value) {
-      libraries = this.filterArtists(libraries, value); // Sort value
+      libraries = this.filterArtists(libraries, value); // Sort value serach
     }
 
     this.libraryContent.innerHTML = ""; // Gắn lại xoá
@@ -355,7 +381,7 @@ class HomePage {
   }
 
   handleSortChange(detail) {
-    this.renderLibrary(this.library, detail);
+    this.renderLibrary(this.libraryDataMyPlayList, detail);
   }
 
   // Sort theo khung nhìn

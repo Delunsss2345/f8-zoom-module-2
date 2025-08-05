@@ -21,7 +21,7 @@ class LibraryItem {
     container.dataset.id = id;
     container.onclick = (e) => {
       removeActiveClass(".library-item");
-      this.onArtistSelect(id);
+      this.onArtistSelect(id, this.libraryMe);
       e.currentTarget.classList.add("active");
     };
     let img;
@@ -85,7 +85,7 @@ class LibraryItem {
     if (modeArtist) {
       this.libraryContent.appendChild(container);
     }
-
+    this.libraryMe = container;
     return container;
   }
 }

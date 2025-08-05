@@ -45,14 +45,11 @@ class Home {
       className: "home",
     });
 
-    console.log(data);
-
     // Tạo phần tiêu đề (header) của section, bao gồm tiêu đề và nút "Hiện tất cả"
     const header = createElement("div", {
       className: "section-header",
       innerHTML: `
       <h2 class="home-title">${title}</h2>
-      <a href="#" class="show-all">Hiện tất cả</a>
     `,
     });
 
@@ -87,6 +84,7 @@ class Home {
             className: mode === "artist" ? "artist-img" : "album-img",
             attributes: {
               src: item.image_url,
+
               alt: mode === "artist" ? item.name : item.artist_name,
             },
           });
@@ -120,13 +118,23 @@ class Home {
       //  Tên nghệ sĩ hoặc tên album
       const title = createElement("div", {
         className: "content-title",
-        textContent: mode === "artist" ? item.name : item.artist_name,
+        textContent:
+          mode === "artist"
+            ? item.name
+            : mode === "playlist"
+            ? item.name
+            : item.artist_name,
       });
 
       // "Nghệ sĩ" nếu là mode artist, còn không thì là tên album
       const subtitle = createElement("div", {
         className: "content-subtitle",
-        textContent: mode === "artist" ? "Nghệ sĩ" : item.name,
+        textContent:
+          mode === "artist"
+            ? "Nghệ sĩ"
+            : mode === "playlist"
+            ? item.description
+            : item.name,
       });
 
       // Bọc tiêu đề và phụ đề lại trong 1 khối info
