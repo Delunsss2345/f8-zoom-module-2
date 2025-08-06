@@ -113,6 +113,47 @@ export default class Tooltip {
         textContent: "Toàn màn hình",
       })
     );
+    // Thanh tiến độ kiểu input range nhưng giữ nguyên class
+    const progressContainer = createElement("div", {
+      className: "progress-container",
+    });
+
+    const currentTime = createElement("span", {
+      className: "current-time",
+      textContent: "0:00",
+    });
+
+    const progressInput = createElement("input", {
+      className: "progress-bar", // giữ nguyên tên class cũ
+      attributes: {
+        type: "range",
+        min: "0",
+        max: "100",
+        value: "0",
+        step: "0.1",
+      },
+    });
+
+    const progressFill = createElement("div", {
+      className: "progress-fill",
+    });
+
+    const progressHandle = createElement("div", {
+      className: "progress-handle",
+    });
+
+    const durationTime = createElement("span", {
+      className: "duration-time",
+      textContent: "0:00",
+    });
+
+    progressContainer.appendChild(currentTime);
+    progressContainer.appendChild(progressInput);
+    progressContainer.appendChild(progressFill);
+    progressContainer.appendChild(progressHandle);
+    progressContainer.appendChild(durationTime);
+
+    this.playerCenter.appendChild(progressContainer);
     this.playerRight.appendChild(micBtn);
     this.playerRight.appendChild(volumeContainer);
     this.playerRight.appendChild(fullscreenBtn);

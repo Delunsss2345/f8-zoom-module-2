@@ -152,6 +152,8 @@ class AuthService {
 
   // Hàm logout
   logout() {
+    document.dispatchEvent(new CustomEvent("logoutChanged"));
+
     this._authUser = null;
     localStorage.removeItem("accessToken");
     localStorage.removeItem("user");

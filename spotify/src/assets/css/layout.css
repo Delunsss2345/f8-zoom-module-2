@@ -16,11 +16,11 @@
 /* Sidebar */
 .sidebar {
   grid-area: sidebar;
+  overflow-y: scroll;
+
   background-color: var(--bg-secondary);
   border-radius: var(--radius-md);
   padding: var(--spacing-lg);
-  overflow-y: auto;
-  z-index: var(--z-sidebar);
 }
 
 .sidebar-header {

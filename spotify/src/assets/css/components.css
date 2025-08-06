@@ -346,6 +346,7 @@
 
 /* Create button */
 .create-btn {
+  display: flex;
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--radius-full);
   background-color: transparent;
@@ -858,7 +859,6 @@
   transition: all var(--transition-fast);
 }
 
-.progress-handle,
 .volume-handle {
   position: absolute;
   right: -6px;
@@ -871,10 +871,27 @@
   opacity: 0;
   transition: all var(--transition-fast);
 }
-
+.progress-handle {
+  left: 0;
+}
 .progress-bar:hover .progress-handle,
 .volume-bar:hover .volume-handle {
   opacity: 1;
+}
+/* Chrome, Safari */
+.progress-bar {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.progress-bar::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 12px;
+  width: 12px;
+  background-color: #3cb165; /* Màu nút */
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
 }
 
 /* User avatar */
@@ -1017,7 +1034,7 @@
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
-  z-index: 100;
+  z-index: 999999;
   transition: opacity 0.3s;
   font-weight: 500;
 }

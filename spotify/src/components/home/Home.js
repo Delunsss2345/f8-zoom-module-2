@@ -133,7 +133,7 @@ class Home {
           mode === "artist"
             ? "Nghệ sĩ"
             : mode === "playlist"
-            ? item.description
+            ? `By ${item.user_display_name ?? "Không biết ai"}`
             : item.name,
       });
 

@@ -99,7 +99,7 @@ class ArtistHero {
       followBtn.textContent = "Đang theo dõi";
     }
 
-    if (id) {
+    if (id && this.accessToken) {
       followBtn.onclick = (e) => {
         handlerFollow(
           e,

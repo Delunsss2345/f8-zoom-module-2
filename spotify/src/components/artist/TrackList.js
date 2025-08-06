@@ -1,11 +1,12 @@
-import { formatDuration, formatNumber } from "../../utils/formatters.js";
+import {
+  formatDuration,
+  formatNumber,
+  formatTime,
+} from "../../utils/formatters.js";
 import { createElement } from "../../utils/helpers.js";
 
 class TrackList {
   constructor(container, audio, progress, player) {
-    this.audio = audio;
-    this.progress = progress;
-    this.player = player;
     this.container = container;
 
     this.currentId = 0;
@@ -25,6 +26,12 @@ class TrackList {
   }
 
   setupEventControl() {
+    this.player = document.querySelector(".player");
+    this.audio = document.getElementById("audioPlay");
+    this.progress = document.querySelector(".progress-bar");
+    this.currentTimeEl = document.querySelector(".current-time");
+    this.durationTimeEl = document.querySelector(".duration-time");
+
     const playBtn = document.querySelector(".control-btn.play-btn");
     const playBtnIcon = playBtn.querySelector(".fas");
     this.playBtnIcon = playBtnIcon;
@@ -70,20 +77,29 @@ class TrackList {
 
     this.audio.ontimeupdate = () => {
       if (this.progress.seeking) return;
-      const percent = (this.audio.currentTime / this.audio.duration) * 100;
+      const percent = (this.audio.currentTime / this.audio.duration) * 100 || 0;
       this.progress.value = percent || 0;
+      if (this.currentTimeEl) {
+        this.currentTimeEl.textContent = formatTime(percent);
+      }
     };
 
-    // this.progress.onmousedown = () => {
-    //   this.progress.seeking = true;
-    // };
+    this.progress.onmousedown = () => {
+      this.progress.seeking = true;
+    };
 
-    // this.progress.onmouseup = () => {
-    //   const percent = +this.progress.value;
-    //   this.audio.currentTime = (this.audio.duration / 100) * percent;
-    //   this.progress.seeking = false;
-    // };
-
+    this.progress.onmouseup = () => {
+      const percent = +this.progress.value;
+      this.audio.currentTime = (this.audio.duration / 100) * percent;
+      this.progress.seeking = false;
+    };
+    this.audio.onloadeddata = () => {
+      if (this.durationTimeEl) {
+        this.durationTimeEl.textContent = formatTime(
+          Math.floor(this.audio.duration)
+        );
+      }
+    };
     this.audio.onended = () => {
       if (this.isRepeat) {
         this.audio.currentTime = 0;
@@ -156,7 +172,9 @@ class TrackList {
       el.classList.remove("playing");
     });
     const active = this.container.querySelector(`[data-id='${track.id}']`);
-    if (active) active.classList.add("playing");
+    if (active) {
+      active.classList.add("playing");
+    }
   }
 
   prevTrack() {

@@ -151,7 +151,7 @@ export async function handlerFollow(
         data.name,
         data.image_url,
         true,
-        true
+        false
       );
     } else {
       const [_, res] = await Promise.all([

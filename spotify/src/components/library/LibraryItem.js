@@ -85,6 +85,13 @@ class LibraryItem {
     if (modeArtist) {
       this.libraryContent.appendChild(container);
     }
+    if (modePlayList) {
+      const items = document.querySelectorAll(".library-item.play-liked");
+      const lastItem = items[items.length - 1];
+      if (lastItem) {
+        lastItem.parentNode.insertBefore(container, lastItem.nextSibling);
+      }
+    }
     this.libraryMe = container;
     return container;
   }

@@ -4,7 +4,10 @@ import { modalAnimationHelper, toggleBodyScroll } from "../../utils/helpers.js";
 import AuthButton from "./AuthButton.js";
 
 class AuthModal {
-  constructor() {
+  constructor(setLibraryArtist, setLibraryPlaylist) {
+    this.setLibraryArtist = setLibraryArtist;
+    this.setLibraryPlaylist = setLibraryPlaylist;
+
     // DOM element references
     this.submitSignUp = document.querySelector(".auth-submit-btn.signup-btn");
     this.submitLogin = document.querySelector(".auth-submit-btn.login-btn");
@@ -29,7 +32,10 @@ class AuthModal {
     this.passwordLoginField = document.getElementById("loginPassword");
 
     // Initialize AuthService và setup DOM
-    this.authService = new AuthService();
+    this.authService = new AuthService(
+      this.setLibraryArtist.bind(this),
+      this.setLibraryPlaylist.bind(this)
+    );
     this.authService.setDom(
       this.userNameSignUpField,
       this.emailSignUpField,
@@ -86,6 +92,7 @@ class AuthModal {
         // Render nút user đã đăng nhập
         this.authButtons = new AuthButton(this.headerAction, true);
         this.authButtons.render();
+        document.dispatchEvent(new CustomEvent("loginChanged"));
       }
     };
 
@@ -120,6 +127,7 @@ class AuthModal {
         // Render lại header với nút user đã login
         this.authButtons = new AuthButton(this.headerAction, true);
         this.authButtons.render();
+        document.dispatchEvent(new CustomEvent("loginChanged"));
       }
     };
 

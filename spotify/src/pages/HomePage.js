@@ -52,8 +52,11 @@ class HomePage {
     this.authButton = new AuthButton(this.headerAction, !!this.user); // truyền header và user
     this.authButton.render(); // render
 
-    this.authModal = new AuthModal(); // Tạo đối tượng modal login register
-
+    this.authModal = new AuthModal(
+      this.setLibraryArtist.bind(this),
+      this.setLibraryPlaylist.bind(this)
+    ); // Tạo đối tượng modal login register
+    this.tooltipComponent.render(); //Load tool tip
     this.init(); // Khởi tạo
   }
 
@@ -79,7 +82,6 @@ class HomePage {
     return this.libraryDataMyPlayList;
   }
   async init() {
-    this.tooltipComponent.render(); //Load tool tip
     await this.loadArtists(); // Load danh sách arstist
     await this.loadAllPlayList();
     await this.loadPopularTracks(); // Load danh sách nhạc phổ biến
@@ -202,6 +204,18 @@ class HomePage {
       }
       // Hỡ trợ click ngoài tắt contextMenu
       this.contextMenuComponent.getMenu.classList.remove(MODAL_CLASSES.SHOW);
+    });
+
+    document.addEventListener("logoutChanged", (e) => {
+      this.library = [];
+      this.libraryFull = [];
+      this.playlists = [];
+      this.libraryDataMyPlayList = [];
+      this.renderLibrary([]);
+    });
+
+    document.addEventListener("loginChanged", (e) => {
+      this.init();
     });
 
     // 2 hàm bắt sụ kiện thay đổi khung nhìn và sắp xếp

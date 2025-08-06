@@ -33,7 +33,8 @@ class Playlist {
     const response = await PlayListService.getMyPlayList(this.accessToken);
     this.myPlayList = response.data.playlists.map((playlist) => playlist.id);
   }
-  // Hàm khởi tạo danh sách đã follow
+  // Hàm khởi tạo danh sách đã follow, vì khi theo dõi, nếu không tạo lại hàm này
+  // sẽ khiến playlist mới được thêm vào nav nhưng không hiện theo dõi
   async setUpFollowing(accessToken) {
     const response = await PlayListService.getAllPlayListFollow(
       accessToken || this.accessToken
@@ -136,12 +137,12 @@ class Playlist {
     playBtn.appendChild(playIcon);
     artistControls.appendChild(playBtn);
 
-    if (!this.myPlayList.includes(id)) {
+    if (!this.myPlayList || !this.myPlayList.includes(id)) {
       const followBtn = createElement("button", {
         className: "follow-btn",
         textContent: "Theo dõi",
       });
-      if (id) {
+      if (id && this.myPlayList) {
         this.playListFollowing.forEach((el) => {
           if (el.id === id) {
             followBtn.classList.add("following");
