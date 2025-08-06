@@ -1,3 +1,6 @@
+import ArtistService from "../services/api/ArtistService.js";
+import PlayListService from "../services/api/PlayListService.js";
+
 //Xóa class "active" khỏi tất cả elements matching selector
 export function removeActiveClass(selector) {
   const elements = document.querySelectorAll(selector);
@@ -86,5 +89,123 @@ export function modalAnimationHelper(
     };
 
     modalContainer.addEventListener("animationend", handleAnimationEnd);
+  }
+}
+
+// Hàm cập nhập state library artist và playlist
+export function updateLibraryState(mode, item, getFn, setFn) {
+  if (!getFn || !setFn) return;
+  const currentList = getFn();
+  const updatedList =
+    mode === "delete"
+      ? currentList.filter((el) => el.id !== item.id) // mode xoá xoá hàm lọc bên homepage
+      : [...currentList, item]; // mode add thêm artist mới
+  setFn(updatedList);
+}
+
+// Hàm handleFollow hỗ trợ follow ở 2 bên khác nhau playlist và artist
+// vì khi tạo ra 1 library mới add ngay vào sideBar sẽ không gắn được sự kiện click nên phải tạo riêng
+export async function handlerFollow(
+  e,
+  id,
+  accessToken,
+  getLibraryNow,
+  setLibraryNow,
+  getLibraryArtistOrPlayListNow,
+  setLibraryArtistOrPlayListNow,
+  libraryItemComponent,
+  setUpFollowing,
+  mode = "artist"
+) {
+  const isFollowing = e.target.classList.contains("following");
+  e.target.textContent = isFollowing ? "Theo dõi" : "Đang theo dõi";
+  e.target.classList.toggle("following");
+
+  if (isFollowing) {
+    document.querySelector(`.library-item[data-id="${id}"]`)?.remove();
+    if (mode === "playlist") {
+      await PlayListService.unfollowPlaylist(accessToken, id);
+    } else {
+      await ArtistService.unfollowArtist(accessToken, id);
+    }
+
+    updateLibraryState("delete", { id }, getLibraryNow, setLibraryNow);
+    updateLibraryState(
+      "delete",
+      { id },
+      getLibraryArtistOrPlayListNow,
+      setLibraryArtistOrPlayListNow
+    );
+  } else {
+    let data;
+    // hỗ trợ mode khác nhau , nếu là playlist sẽ get playlist
+    if (mode === "playlist") {
+      const [_, res] = await Promise.all([
+        PlayListService.followPlaylist(accessToken, id),
+        PlayListService.getPlayListById(id),
+      ]);
+      data = res.data;
+      setUpFollowing(accessToken);
+      libraryItemComponent.createLibraryItem(
+        data.id,
+        data.name,
+        data.image_url,
+        true,
+        true
+      );
+    } else {
+      const [_, res] = await Promise.all([
+        ArtistService.followArtist(accessToken, id),
+        ArtistService.getArtistById(id),
+      ]);
+
+      data = res.data;
+
+      libraryItemComponent.createLibraryItem(
+        data.id,
+        data.name,
+        data.image_url,
+        false,
+        true
+      );
+    }
+
+    updateLibraryState("add", data, getLibraryNow, setLibraryNow);
+    updateLibraryState(
+      "add",
+      data,
+      getLibraryArtistOrPlayListNow,
+      setLibraryArtistOrPlayListNow
+    );
+  }
+}
+
+export async function handleSelect(
+  id,
+  accessToken,
+  thisComponent,
+  mode = "artist"
+) {
+  try {
+    let data;
+    switch (mode) {
+      case "artist":
+        data = await ArtistService.getArtistDetails(id, accessToken);
+        thisComponent.render(
+          data.artist,
+          data.tracks,
+          data.artist.id,
+          data.artist.is_following
+        );
+        break;
+
+      case "playlist":
+        const response = await PlayListService.getPlayListById(id);
+        data = response.data;
+        thisComponent.createPlaylistPage(data.image_url, data.name, data.id);
+        break;
+    }
+  } catch (error) {
+    console.error(`Lỗi lấy ${mode} details`, error);
   }
 }

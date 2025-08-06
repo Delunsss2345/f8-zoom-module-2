@@ -1,14 +1,29 @@
 import PlayListService from "../../services/api/PlayListService.js";
-import { createElement } from "../../utils/helpers.js";
+import {
+  createElement,
+  handlerFollow,
+  handleSelect,
+} from "../../utils/helpers.js";
 import LibraryItem from "../library/LibraryItem.js";
 
 class Playlist {
-  constructor(container) {
+  constructor(
+    container,
+    setLibraryFull,
+    getLibraryFull,
+    getLibraryPlaylist,
+    setLibraryPlaylist
+  ) {
+    this.setLibraryNow = setLibraryFull; // set  hàm chứa tất cả  hiện tại
+    this.getLibraryNow = getLibraryFull; // get hàm chứa tất cả  hiện tại
+    this.setLibraryPlaylistNow = setLibraryPlaylist; // set hàm chứa playlist hiện tại
+    this.getLibraryPlaylistNow = getLibraryPlaylist; // get hàm chứa playlist hiện tại
     this.container = container;
     this.accessToken = localStorage.getItem("accessToken");
+
     this.libraryItemComponent = new LibraryItem((id) => {
       this.artistId = id;
-      this.handlePlaylist(id);
+      handleSelect(id, this.accessToken, this, "playlist");
     });
     this.init();
   }
@@ -19,49 +34,11 @@ class Playlist {
     this.myPlayList = response.data.playlists.map((playlist) => playlist.id);
   }
   // Hàm khởi tạo danh sách đã follow
-  async setUpFollowing() {
+  async setUpFollowing(accessToken) {
     const response = await PlayListService.getAllPlayListFollow(
-      this.accessToken
+      accessToken || this.accessToken
     );
     this.playListFollowing = response.data.playlists;
-  }
-
-  // Hàm để theo dõi chi tiết
-  async handlerFollow(e, id) {
-    if (e.target.classList.contains("following")) {
-      e.target.textContent = "Theo dõi";
-      await PlayListService.unfollowPlaylist(this.accessToken, id);
-    } else {
-      e.target.textContent = "Đang theo dõi";
-      await PlayListService.followPlaylist(this.accessToken, id);
-      const response = await PlayListService.getPlayListById(id);
-      const playlist = response.data;
-      console.log(playlist);
-      this.libraryItemComponent.createLibraryItem(
-        playlist.id,
-        playlist.name,
-        playlist.image_url,
-        true
-      );
-    }
-    e.target.classList.toggle("following");
-    // Khởi tạo lại hàm đã follow
-    this.setUpFollowing();
-  }
-
-  async handlePlaylist(id) {
-    try {
-      const response = await PlayListService.getPlayListById(id);
-      console.log(response);
-      // this.contentComponent.render(
-      //   response.data.playlist,
-      //   tracks,
-      //   artist.id,
-      //   artist.is_following
-      // );
-    } catch (error) {
-      console.error("Lỗi lấy artist details", error);
-    }
   }
 
   createPlaylistPage(imageUrl, playlistName, id = null) {
@@ -171,11 +148,22 @@ class Playlist {
             followBtn.textContent = "Đang theo dõi";
           }
         });
+        console.log(id);
+        followBtn.onclick = (e) => {
+          handlerFollow(
+            e,
+            id,
+            this.accessToken,
+            this.getLibraryNow,
+            this.setLibraryNow,
+            this.getLibraryPlaylistNow,
+            this.setLibraryPlaylistNow,
+            this.libraryItemComponent,
+            (token) => this.setUpFollowing(token),
+            "playlist"
+          );
+        };
       }
-
-      followBtn.onclick = (e) => {
-        this.handlerFollow(e, id);
-      };
 
       artistControls.appendChild(followBtn);
     }

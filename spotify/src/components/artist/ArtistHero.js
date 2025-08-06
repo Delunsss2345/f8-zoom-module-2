@@ -1,11 +1,24 @@
-import ArtistService from "../../services/api/ArtistService.js";
 import { formatNumber } from "../../utils/formatters.js";
-import { createElement } from "../../utils/helpers.js";
+import {
+  createElement,
+  handlerFollow,
+  handleSelect,
+} from "../../utils/helpers.js";
 import LibraryItem from "../library/LibraryItem.js";
 import TrackList from "./TrackList.js";
 
 class ArtistHero {
-  constructor(container, tracks) {
+  constructor(
+    container,
+    setLibraryFull,
+    getLibraryFull,
+    getLibraryArtist,
+    setLibraryArtist
+  ) {
+    this.setLibraryNow = setLibraryFull; // set  hàm chứa playlist  hiện tại
+    this.getLibraryNow = getLibraryFull; // get hàm chứa playlist  hiện tại
+    this.setLibraryArtistNow = setLibraryArtist; // set hàm chứa artist hiện tại
+    this.getLibraryArtistNow = getLibraryArtist; // get hàm chứa artist hiện tại
     this.player = document.querySelector(".player");
     this.audio = document.getElementById("audioPlay");
     this.process = document.querySelector(".progress-fill");
@@ -15,50 +28,8 @@ class ArtistHero {
 
     this.libraryItemComponent = new LibraryItem((id, libraryContent = null) => {
       this.artistId = id;
-      this.handleArtistSelect(id);
+      handleSelect(id, this.accessToken, this);
     });
-  }
-
-  set libraryItemSelected(item) {
-    this.libraryItemSelect = item;
-  }
-  // Hàm để theo dõi
-  async handlerFollow(e, id) {
-    if (e.target.classList.contains("following")) {
-      document.querySelector(`.library-item[data-id="${id}"]`).remove();
-      e.target.textContent = "Theo dõi";
-      ArtistService.unfollowArtist(this.accessToken, id);
-    } else {
-      e.target.textContent = "Đang theo dõi";
-      const data = await Promise.all([
-        ArtistService.followArtist(this.accessToken, id),
-        ArtistService.getArtistById(id),
-      ]);
-      const artist = data[1].data;
-      // add vào library khi theo dõi
-      this.libraryItemComponent.createLibraryItem(
-        artist.id,
-        artist.name,
-        artist.image_url,
-        false,
-        true
-      );
-    }
-
-    e.target.classList.toggle("following");
-  }
-
-  async handleArtistSelect(id) {
-    try {
-      const { artist, tracks } = await ArtistService.getArtistDetails(
-        id,
-        this.accessToken
-      );
-
-      this.render(artist, tracks, artist.id, artist.is_following);
-    } catch (error) {
-      console.error("Lỗi lấy artist details", error);
-    }
   }
 
   createArtistPage(
@@ -130,7 +101,16 @@ class ArtistHero {
 
     if (id) {
       followBtn.onclick = (e) => {
-        this.handlerFollow(e, id);
+        handlerFollow(
+          e,
+          id,
+          this.accessToken,
+          this.getLibraryNow,
+          this.setLibraryNow,
+          this.getLibraryArtistNow,
+          this.setLibraryArtistNow,
+          this.libraryItemComponent
+        );
       };
     }
 

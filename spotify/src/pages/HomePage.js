@@ -26,21 +26,26 @@ class HomePage {
     this.sortDropdown = new SortDropdown(); // Khởi tạo dropdown
     this.contextMenuComponent = new ContextMenu(); // Tạo context Menu
     this.contextMenuComponent.init();
-    this.contentComponent = new ArtistHero(this.contentWrapper); // Tạo đối tượng render content khi click
-    this.playListComponent = new Playlist(this.contentWrapper); // Tạo đối tượng play list
+    this.contentComponent = new ArtistHero(
+      this.contentWrapper,
+      this.setLibraryDataPlayListAndArtist.bind(this),
+      this.getLibraryDataPlayListAndArtist.bind(this),
+      this.getLibraryArtist.bind(this),
+      this.setLibraryArtist.bind(this)
+    ); // Tạo đối tượng render content khi click
+    this.playListComponent = new Playlist(
+      this.contentWrapper,
+      this.setLibraryDataPlayListAndArtist.bind(this),
+      this.getLibraryDataPlayListAndArtist.bind(this),
+      this.getLibraryPlaylist.bind(this),
+      this.setLibraryPlaylist.bind(this)
+    ); // Tạo đối tượng play list
     this.playListEditComponent = new PlaylistEdit(this.contentWrapper); // Tạo đối tượng edit play list
     this.HomeComponent = new Home(this.contentWrapper, this.handleArtistHome); // Khởi tạo home để hộ trợ hiện aristi
     this.libraryItemComponent = new LibraryItem((id, libraryContent = null) => {
       // Tạo đói tượng truyền hàm để hổ trợ mỗi library có 1 click
       this.artistId = id; // Gắn id artistId
       this.handleArtistSelect(id); // Gắn hàm ở HomePage vào
-      // if (this.libraryMe) {
-      //   this.libraryMe.push(libraryContent);
-      // } else {
-      //   this.libraryMe = [];
-      //   this.libraryMe.push(libraryContent);
-      // }
-      // console.log(this.libraryMe);
     });
     this.user = JSON.parse(localStorage.getItem("user")); // Get trước user lúc khởi tạo
     this.accessToken = localStorage.getItem("accessToken"); // Get trước accessToken
@@ -52,6 +57,27 @@ class HomePage {
     this.init(); // Khởi tạo
   }
 
+  setLibraryDataPlayListAndArtist(item) {
+    if (!item) return;
+    this.libraryDataMyPlayList = item;
+  }
+  setLibraryArtist(item) {
+    if (!item) return;
+    this.library = item;
+  }
+  setLibraryPlaylist(item) {
+    if (!item) return;
+    this.playlists = item;
+  }
+  getLibraryArtist() {
+    return this.library;
+  }
+  getLibraryPlaylist() {
+    return this.playlists;
+  }
+  getLibraryDataPlayListAndArtist() {
+    return this.libraryDataMyPlayList;
+  }
   async init() {
     this.tooltipComponent.render(); //Load tool tip
     await this.loadArtists(); // Load danh sách arstist
@@ -69,7 +95,7 @@ class HomePage {
     removeActiveClass(".library-item");
     contentWrapper.innerHTML = "";
 
-    homeComponent.render(libraryFull);
+    homeComponent.render(libraryFull); //full artist
     homeComponent.render(playlists, "Các playLists công khai", "playlist");
     homeComponent.render(popularTracks, "Nhạc phổ biến hiện nay", "album");
   }
@@ -267,7 +293,7 @@ class HomePage {
       if (response.success) {
         const data = response.data.playlists;
 
-        this.libraryDataMyPlayList; // hàm loadArist chạy sau nên sẽ có dữ liệu trước vì thế ta sẽ tiến hành lọc ra playlist của bản thân
+        // hàm loadArist chạy sau nên sẽ có dữ liệu trước vì thế ta sẽ tiến hành lọc ra playlist của bản thân
         const myPlaylistIds = this.libraryDataMyPlayList.map((pl) => pl.id);
 
         this.playlists = data.filter(
