@@ -1,3 +1,4 @@
+import ArtistService from "../../services/api/ArtistService.js";
 import PlayListService from "../../services/api/PlayListService.js";
 import UserService from "../../services/api/UserService.js";
 import { MODAL_CLASSES } from "../../utils/constants.js";
@@ -55,7 +56,7 @@ class ContextMenu {
 
           case "unfollow-artist":
             if (libraryItem) libraryItem.remove();
-            await PlayListService.unfollowPlaylist(this.accessToken, id);
+            await ArtistService.unfollowArtist(this.accessToken, id);
             break;
         }
       } catch (err) {
